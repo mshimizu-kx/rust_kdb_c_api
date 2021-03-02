@@ -1,0 +1,11 @@
+[package]
+name = "c_api_examples"
+version = "0.1.0"
+authors = ["mshimizu-kx"]
+edition = "2018"
+
+[lib]
+crate-type=["cdylib"]
+
+[dependencies]
+kdb_c_api={path="../kdb_c_api"}

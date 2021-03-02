@@ -1,0 +1,8 @@
+[package]
+name = "kdb_c_api"
+version = "0.1.0"
+authors = ["mshimizu-kx"]
+edition = "2018"
+
+[dependencies]
+lazy_static="^1.4"
