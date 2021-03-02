@@ -38,4 +38,12 @@ LIBPATH_: `libc_api_examples 2:
 // KNULL
 .capi.vanity: LIBPATH_ (`vanity; 1);
 
-.test.ASSERT_EQ[.capi.bigbang[]; `super_illusion]
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                          	  Tests    	        		                  //
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+// str_to_S
+.test.ASSERT_EQ[`$"str_to_S"; .capi.bigbang[]; `super_illusion]
+
+// Show result.
+.test.DISPLAY_RESULT[]
