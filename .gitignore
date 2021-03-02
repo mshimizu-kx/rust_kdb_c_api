@@ -1,3 +1,4 @@
+/target
 */target
 tests/test_helper_function.q
 tests/libc_api_examples.so

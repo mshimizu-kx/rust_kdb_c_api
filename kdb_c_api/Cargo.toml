@@ -3,6 +3,11 @@ name = "kdb_c_api"
 version = "0.1.0"
 authors = ["mshimizu-kx"]
 edition = "2018"
+license = "Apache-2.0"
+repository = "https://github.com/KxSystems/rust_kdb_c_api/kdb_c_api"
+description = """
+Wrapper of kdb+ C API.
+"""
 
 [dependencies]
 lazy_static="^1.4"
