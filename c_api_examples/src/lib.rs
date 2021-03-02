@@ -28,6 +28,19 @@ pub extern "C" fn bigbang(_: K) -> K{
 	}
 }
 
+/// Example of `str_to_const_S`.
+#[no_mangle]
+pub extern "C" fn must_be_int(obj: K) -> K{
+  unsafe{
+    if (*obj).qtype != -Q_INT{
+      krr(str_to_const_S("not an int"))
+    }
+    else{
+      KNULL!()
+    }
+  }
+}
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                          	Constructors      			                  //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -96,15 +109,10 @@ pub extern "C" fn print_symbol(symbol: K) -> K{
 //                          		Functions   				                    //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-/// Example of `str_to_const_S`.
+/// Example of `null_terminated_str_to_S`.
 #[no_mangle]
-pub extern "C" fn must_be_int(obj: K) -> K{
+pub extern "C" fn bigbang2(_: K) -> K{
   unsafe{
-    if (*obj).qtype != -Q_INT{
-      krr(str_to_const_S("not int"))
-    }
-    else{
-      KNULL!()
-    }
-  }
+		ks(null_terminated_str_to_S("super_illusion\0"))
+	}
 }

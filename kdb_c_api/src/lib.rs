@@ -15,7 +15,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 use std::str;
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::os::raw::{c_char, c_double, c_float, c_int, c_longlong, c_short, c_schar, c_uchar, c_void};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -638,7 +638,29 @@ pub fn S_to_str<'a>(cstring: S) -> &'a str{
   }
 }
 
-/// Convert `&str` into `const_S`.
+/// Convert `&str` to `S`.
+/// # Example
+/// ```no_run
+/// use kdb_c_api::*;
+/// 
+/// #[no_mangle]
+/// pub extern "C" fn bigbang2(_: K) -> K{
+///   unsafe{ks(str_to_S("super_illusion\0"))}
+/// }
+/// ```
+/// ```q
+/// q)bigbang: `libc_api_examples 2: (`bigbang2; 1);
+/// q)bigbang[]
+/// `super_illusion
+/// ```
+pub extern "C" fn null_terminated_str_to_S(string: &str) -> S {
+  unsafe{
+    CStr::from_bytes_with_nul_unchecked(string.as_bytes()).as_ptr() as S
+  }
+}
+
+
+/// Convert null terminated `&str` into `const_S`.
 /// # Example
 /// ```
 /// #[macro_use]
@@ -646,10 +668,10 @@ pub fn S_to_str<'a>(cstring: S) -> &'a str{
 /// 
 /// use kdb_c_api::*;
 /// 
-/// pub extern "C" fn must_be_int(obj: K) -> K{
+/// pub extern "C" fn must_be_int2(obj: K) -> K{
 ///   unsafe{
 ///     if (*obj).qtype != -Q_INT{
-///       krr(str_to_const_S("not int"))
+///       krr(str_to_const_S("not an int"))
 ///     }
 ///     else{
 ///       KNULL!()
@@ -661,12 +683,12 @@ pub fn S_to_str<'a>(cstring: S) -> &'a str{
 /// q)check:`libc_api_examples 2: (`must_be_int; 1)
 /// q)a:100
 /// q)check a
-/// 'not int
+/// 'not an int
 ///   [0]  check a
 ///        ^
 /// q)a:42i
 /// q)check a
 /// ```
-pub fn str_to_const_S(string: &str) -> const_S{
-  CString::new(string).unwrap_or_default().as_ptr()
+pub extern "C" fn str_to_const_S(string: &str) -> const_S {
+  string.as_bytes().as_ptr() as const_S
 }

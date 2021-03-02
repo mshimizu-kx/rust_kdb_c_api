@@ -76,7 +76,10 @@ rust_kdb_c_api]$ cargo build
 rust_kdb_c_api]$ cp target/debug.libc_api_examples.so tests/
 rust_kdb_c_api]$ cd tests
 tests]$ q test.q
-test result: ok. 1 passed; 0 failed
+Initialized something, probably it is your mindset.
+error: type
+symbol: `rust
+test result: ok. 9 passed; 0 failed
 q)
 
 ```

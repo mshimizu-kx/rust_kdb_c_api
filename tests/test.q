@@ -25,6 +25,8 @@ LIBPATH_: `libc_api_examples 2:
 
 // str_to_S
 .capi.bigbang: LIBPATH_ (`bigbang; 1);
+// null_terminated_str_to_S
+.capi.bigbang2: LIBPATH_ (`bigbang2; 1);
 // ee
 .capi.catchy: LIBPATH_ (`catchy; 2);
 // js
@@ -34,7 +36,7 @@ LIBPATH_: `libc_api_examples 2:
 // S_to_str
 .capi.print_symbol: LIBPATH_ (`print_symbol; 1);
 // dot
-.capi.rust_parse: LIBPATH_ (`rust_parse; 1);
+.capi.rust_parse: LIBPATH_ (`rust_parse; 2);
 // KNULL
 .capi.vanity: LIBPATH_ (`vanity; 1);
 
@@ -42,8 +44,43 @@ LIBPATH_: `libc_api_examples 2:
 //                          	  Tests    	        		                  //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
+//%% Macros %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+// KNULL
+.test.ASSERT_EQ["KNULL"; .capi.vanity[]; (::)]
+
 // str_to_S
-.test.ASSERT_EQ[`$"str_to_S"; .capi.bigbang[]; `super_illusion]
+.test.ASSERT_EQ["str_to_S"; .capi.bigbang[]; `super_illusion]
+
+//%% Cinstructors %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+// ee
+.test.ASSERT_EQ["ee - success"; .capi.catchy[$; ("S"; "rust")]; `rust]
+// ee (print error to stdout)
+.test.ASSERT_EQ["ee - failure"; .capi.catchy[+; (2; "rust")]; (::)]
+
+// js
+.test.ASSERT_EQ["js"; .capi.create_symbol_list[]; `Abraham`Isaac`Jacob]
+
+//%% Miscellaneous %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+// dot
+.test.ASSERT_EQ["dot"; .capi.rust_parse[$; ("J"; "42")]; 42]
+
+//%% Utility Functions %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+// S_to_str (print value to stdout)
+.test.ASSERT_EQ["S_to_str"; .capi.print_symbol[`rust]; (::)]
+
+// null_terminated_str_to_S
+.test.ASSERT_EQ["null_terminated_str_to_S"; .capi.bigbang2[]; `super_illusion]
+
+// null_terminated_str_to_const_S
+.test.ASSERT_ERROR["str_to_const_S"; .capi.must_be_int; enlist 10000; "not an int"]
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                          	  Result   	        		                  //
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 // Show result.
 .test.DISPLAY_RESULT[]
