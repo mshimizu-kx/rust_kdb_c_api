@@ -448,6 +448,13 @@ extern "C"{
   ///   }
   /// }
   /// ```
+  /// ```q
+  /// q)catchy: `libc_api_examples 2: (`catchy; 2);
+  /// q)catchy[$; ("J"; "42")]
+  /// 42
+  /// q)catchy[+; (1; `a)]
+  /// error: type
+  /// ```
   pub fn ee(result: K) -> K;
 
   //%% IPC Functions %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
