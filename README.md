@@ -52,15 +52,15 @@ pub extern "C" fn catchy(func: K, args: K) -> K{
 pub extern "C" fn dictionary_list_to_table() -> K{
   unsafe{
     let dicts=knk(3);
-    let dicts_slice=as_mut_K_slice(dicts);
+    let dicts_slice=dicts.as_mut_slice::<K>();
     //(*dicts).value.list.n=0;
     for i in 0..3{
       let keys=ktn(qtype::SYMBOL as i32, 2);
-      let keys_slice=as_mut_symbol_slice(keys);
+      let keys_slice=keys.as_mut_slice::<S>();
       keys_slice[0]=ss(str_to_S!("a"));
       keys_slice[1]=ss(str_to_S!("b"));
       let values=ktn(qtype::INT as i32, 2);
-      as_mut_int_slice(values)[0..2].copy_from_slice(&[i*10, i*100]);
+      values.as_mut_slice::<I>()[0..2].copy_from_slice(&[i*10, i*100]);
       dicts_slice[i as usize]=xD(keys, values);
     }
     // Format list of dictionary as a table.
