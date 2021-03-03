@@ -1,6 +1,6 @@
 # Rust Wrapper of kdb+ C API
 
-Programming language q (kdb+ is a database written in q) are providing only C API but sometimes an external library provides Rust interface but not C/C++ interface. From the fame of its performance of Rust, Rust still should be feasible to build a shared library for kdb+. This library is provided to address such a natural demand (desire, if you will). Since there is no way for everyone but creating a wrapper like this to write a shared library for kdb+, it probably make sense for someone to provide the wrapper, and we did.
+Programming language q (kdb+ is a database written in q) is providing only C API but sometimes an external library provides Rust interface but not C/C++ interface. From the fame of its performance, Rust still should be feasible to build a shared library for kdb+. This library is provided to address such a natural demand (desire, if you will). Since there is no way for everyone but creating a wrapper like this to write a shared library for kdb+, it probably make sense for someone to provide the wrapper, and we did.
 
 ## Installation
 
@@ -26,7 +26,7 @@ use kdb_c_api::*;
 #[no_mangle]
 pub extern "C" fn create_symbol_list(_: K) -> K{
   unsafe{
-    let mut list=ktn(Q_SYMBOL as i32, 0);
+    let mut list=ktn(qtype::SYMBOL as i32, 0);
     js(&mut list, ss(str_to_S!("Abraham")));
     js(&mut list, ss(str_to_S!("Isaac")));
     js(&mut list, ss(str_to_S!("Jacob")));
@@ -38,7 +38,7 @@ pub extern "C" fn create_symbol_list(_: K) -> K{
 pub extern "C" fn catchy(func: K, args: K) -> K{
   unsafe{
     let result=ee(dot(func, args));
-    if (*result).qtype == -128{
+    if (*result).qtype == -qtype::ERROR{
       println!("error: {}", S_to_str((*result).value.symbol));
       KNULL!()
     }
@@ -46,6 +46,27 @@ pub extern "C" fn catchy(func: K, args: K) -> K{
       result
     }
   }
+}
+
+#[no_mangle]
+pub extern "C" fn dictionary_list_to_table() -> K{
+  unsafe{
+    let dicts=knk(3);
+    let dicts_slice=as_mut_K_slice(dicts);
+    //(*dicts).value.list.n=0;
+    for i in 0..3{
+      let keys=ktn(qtype::SYMBOL as i32, 2);
+      let keys_slice=as_mut_symbol_slice(keys);
+      keys_slice[0]=ss(str_to_S!("a"));
+      keys_slice[1]=ss(str_to_S!("b"));
+      let values=ktn(qtype::INT as i32, 2);
+      as_mut_int_slice(values)[0..2].copy_from_slice(&[i*10, i*100]);
+      dicts_slice[i as usize]=xD(keys, values);
+    }
+    // Format list of dictionary as a table.
+    // ([] a: 0 10 20i; b: 0 100 200i)
+    k(0, str_to_S!("{[dicts] -1 _ dicts, (::)}"), dicts, KNULL!())
+  } 
 }
 
 ```
@@ -63,7 +84,13 @@ q)catchy[$; ("J"; "42")]
 42
 q)catchy[+; (1; `a)]
 error: type
-
+q)unfortunate_fact: `libc_api_examples 2: (`dictionary_list_to_table; 1);
+q)unfortunate_fact[]
+a  b  
+------
+0  0  
+10 100
+20 200
 ```
 
 ## Test
@@ -79,7 +106,7 @@ tests]$ q test.q
 Initialized something, probably it is your mindset.
 error: type
 symbol: `rust
-test result: ok. 9 passed; 0 failed
+test result: ok. 12 passed; 0 failed
 q)
 
 ```

@@ -22,99 +22,83 @@ use std::os::raw::{c_char, c_double, c_float, c_int, c_longlong, c_short, c_scha
 //                          Global Variables                            //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-/// Type indicator of q mixed list.
-///  Access function: `kK`
-pub const Q_MIXED: i8=0;
+pub mod qtype{
+  //! This module provides a list of q types. The motivation to contain them in a module is to 
+  //!  tie them up as related items rather than scattered values. Hence user should use them these
+  //!  indicators with `qtype::` prefix, e.g., `qtype::BOOL`.
+  
+  /// Type indicator of q mixed list.
+  ///  Access function: `kK`
+  pub const COMPOUND: i8=0;
+  /// Type indicator of q bool.
+  ///  Access fucntion: `kG`
+  pub const BOOL: i8=1;
+  /// Type indicator of q GUID.
+  ///  Access function: `kU`
+  pub const GUID: i8=2;
+  /// Type indicator of q byte
+  ///  Access function: `kG`
+  pub const BYTE: i8=4;
+  /// Type indicator of q short.
+  ///  Access function: `kH`
+  pub const SHORT: i8=5;
+  /// Type indicator of q int.
+  ///  Access function: `kI`
+  pub const INT: i8=6;
+  /// Type indicator of q long.
+  ///  Access function: `kJ`
+  pub const LONG: i8=7;
+  /// Type indicator of q real.
+  ///  Access function: `kE`
+  pub const REAL: i8=8;
+  /// Type indicator of q float.
+  ///  Access function: `kF`
+  pub const FLOAT: i8=9;
+  /// Type indicator of q char.
+  ///  Access function: `kC`
+  pub const CHAR: i8=10;
+  /// Type indicator of q symbol.
+  ///  Access function: `kS`
+  pub const SYMBOL: i8=11;
+  /// Type indicator of q timestamp.
+  ///  Access function: `kJ`
+  pub const TIMESTAMP: i8=12;
+  /// Type indicator of q month.
+  ///  Access function: `kI`
+  pub const MONTH: i8=13;
+  /// Type indicator of q date.
+  ///  Access function: `kI`
+  pub const DATE: i8=14;
+  /// Type indicator of q datetime.
+  ///  Access function: `kF`
+  pub const DATETIME: i8=15;
+  /// Type indicator of q timespan.
+  ///  Access function: `kJ`
+  pub const TIMESPAN: i8=16;
+  /// Type indicator of q minute.
+  ///  Access function: `kI`
+  pub const MINUTE: i8=17;
+  /// Type indicator of q second.
+  ///  Access function: `kI`
+  pub const SECOND: i8=18;
+  /// Type indicator of q time.
+  ///  Access function: `kI`
+  pub const TIME: i8=19;
+  /// Type indicator of q table.
+  ///  `*(qstruct).k` is q dictionary.
+  pub const Table: i8=98;
+  /// Type indicator of q dictionary.
+  /// - `kK(x)[0]`: keys
+  /// - `kK(x)[1]`: values
+  pub const DICTIONARY: i8=99;
+  /// Type indicator of q sorted dictionary
+  pub const SORTED_DICTIONARY: i8=127;
+  /// Type indicator of q error
+  pub const ERROR: i8=-128;
+  /// Type indicator of q general null
+  pub const NULL: i8=101;
 
-/// Type indicator of q bool.
-///  Access fucntion: `kG`
-pub const Q_BOOL: i8=1;
-
-/// Type indicator of q GUID.
-///  Access function: `kU`
-pub const Q_GUID: i8=2;
-
-/// Type indicator of q byte
-///  Access function: `kG`
-pub const Q_BYTE: i8=4;
-
-/// Type indicator of q short.
-///  Access function: `kH`
-pub const Q_SHORT: i8=5;
-
-/// Type indicator of q int.
-///  Access function: `kI`
-pub const Q_INT: i8=6;
-
-/// Type indicator of q long.
-///  Access function: `kJ`
-pub const Q_LONG: i8=7;
-
-/// Type indicator of q real.
-///  Access function: `kE`
-pub const Q_REAL: i8=8;
-
-/// Type indicator of q float.
-///  Access function: `kF`
-pub const Q_FLOAT: i8=9;
-
-/// Type indicator of q char.
-///  Access function: `kC`
-pub const Q_CHAR: i8=10;
-
-/// Type indicator of q symbol.
-///  Access function: `kS`
-pub const Q_SYMBOL: i8=11;
-
-/// Type indicator of q timestamp.
-///  Access function: `kJ`
-pub const Q_TIMESTAMP: i8=12;
-
-/// Type indicator of q month.
-///  Access function: `kI`
-pub const Q_MONTH: i8=13;
-
-/// Type indicator of q date.
-///  Access function: `kI`
-pub const Q_DATE: i8=14;
-
-/// Type indicator of q datetime.
-///  Access function: `kF`
-pub const Q_DATETIME: i8=15;
-
-/// Type indicator of q timespan.
-///  Access function: `kJ`
-pub const Q_TIMESPAN: i8=16;
-
-/// Type indicator of q minute.
-///  Access function: `kI`
-pub const Q_MINUTE: i8=17;
-
-/// Type indicator of q second.
-///  Access function: `kI`
-pub const Q_SECOND: i8=18;
-
-/// Type indicator of q time.
-///  Access function: `kI`
-pub const Q_TIME: i8=19;
-
-/// Type indicator of q table.
-///  `*(qstruct).k` is q dictionary.
-pub const Q_TABLE: i8=98;
-
-/// Type indicator of q dictionary.
-/// - `kK(x)[0]`: keys
-/// - `kK(x)[1]`: values
-pub const Q_DICTIONARY: i8=99;
-
-/// Type indicator of q sorted dictionary
-pub const Q_SORTED_DICTIONARY: i8=127;
-
-/// Type indicator of q error
-pub const Q_ERROR: i8=-128;
-
-/// Type indicator of q general null
-pub const Q_GENERAL_NULL: i8=101;
+}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                             Type Alias                               //
@@ -131,43 +115,65 @@ pub type E = c_float;
 pub type F = c_double;
 pub type V = c_void;
 
+/// Struct representing 16-bytes GUID.
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
 pub struct U{
   guid: [G; 16]
 }
 
+/// Underlying list value of q object.
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
 pub struct k0_list_info{
+  /// Length of the list.
   pub n: J,
+  /// Pointer referring to the head of teh list. This pointer will be interpreted
+  ///  as various types when accessing `K` object to edit the list.
   pub G0: [G; 1]
 }
 
+/// Underlying atom value of q object.
 #[derive(Clone, Copy)]
 #[repr(C)]
 pub union k0_inner{
+  /// Byte type holder.
   pub byte: G,
+  /// Short type holder.
   pub short: H,
+  /// Int type holder.
   pub int: I,
+  /// Long type older.
   pub long: J,
+  /// Real type holder.
   pub real: E,
+  /// Float type holder.
   pub float: F,
+  /// Symbol type holder.
   pub symbol: S,
+  /// Table type holder.
   pub table: *mut k0,
+  /// List type holder.
   pub list: k0_list_info
 }
 
 unsafe impl Send for k0_inner{}
 
+/// Underlying struct of `K` object.
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct k0{
+  /// For internal usage. 
   pub m: c_schar,
+  /// For internal usage.
   pub a: c_schar,
+  /// Type indicator.
   pub qtype: c_schar,
+  /// Attribute of list.
   pub attribute: C,
+  /// Reference count of the object.
   pub refcount: I,
+  /// Underlying value.
   pub value: k0_inner
 }
 
@@ -177,7 +183,7 @@ unsafe impl Send for k0{}
 pub type K = *mut k0;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//                             Define Macros                            //
+//                                Macros                                //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 //%% Utility %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
@@ -223,78 +229,6 @@ macro_rules! str_to_S {
     [$string.as_bytes(), &[b'\0']].concat().as_mut_ptr() as S
   };
 }
-
-/*
-#[macro_export]
-macro_rules! kG {
-  ($qstruct: expr) => {
-    *((*$qstruct).value.list.G0)
-  };
-}
-
-#[macro_export]
-macro_rules! kU {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [U; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kH {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [H; (*$qstruct).list.n]>(kG!($qstruct))  
-  };
-}
-
-#[macro_export]
-macro_rules! kI {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [I; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kJ {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [J; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kE {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [E; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kF {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [F; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kS {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [S; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kC {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [C; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-
-#[macro_export]
-macro_rules! kK {
-  ($qstruct: expr) => {
-    std::mem::transmute::<[G; (*$qstruct).list.n], [K; (*$qstruct).list.n]>(kG!($qstruct))
-  };
-}
-*/
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                          External C Functions                        //
@@ -373,6 +307,25 @@ extern "C"{
   pub fn xT(dictionary: K) -> K;
 
   /// Constructor of q dictionary object.
+  /// # Example
+  /// ```
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_dictionary() -> K{
+  ///   unsafe{
+  ///     let keys=ktn(qtype::INT as i32, 2);
+  ///     as_mut_int_slice(keys)[0..2].copy_from_slice(&[0, 1]);
+  ///     let values=knk(2);
+  ///     let date_list=ktn(qtype::DATE as i32, 3);
+  ///     // 2000.01.01 2000.01.02 2000.01.03
+  ///     as_mut_int_slice(date_list)[0..3].copy_from_slice(&[0, 1, 2]);
+  ///     let string=kp(str_to_S!("I'm afraid I would crash the application..."));
+  ///     as_mut_K_slice(values)[0..2].copy_from_slice(&[date_list, string]);
+  ///     xD(keys, values)
+  ///   }
+  /// }
+  /// ```
   pub fn xD(keys: K, values: K) -> K;
 
   /// Constructor of q error.
@@ -393,6 +346,32 @@ extern "C"{
 
   /// Appends a q object to a q list.
   ///  Returns a pointer to the (potentially reallocated) `K` object.
+  /// # Example
+  /// ```
+  /// #[no_mangle]
+  /// pub extern "C" fn create_compound_list(_: K) -> K{
+	///   unsafe{
+	///  	  let mut list=knk(0);
+	///  	  jk(&mut list, ks(str_to_S!("1st")));
+	///  	  jk(&mut list, ki(2));
+	///  	  jk(&mut list, kpn(str_to_S!("3rd"), "3rd".chars().count() as i64));
+	///  	  list
+	///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)ranks: `libc_api_examples 2: (`create_compound_list; 1);
+  /// q)ranks[]
+  /// `1st
+  /// 2i
+  /// "3rd"
+  /// ```
+  /// # Note
+  /// In this example we intentionally not allocated an array by `knk(0)` to use `jk` to make it grow.
+  ///  When using `jk`, it accesses current value of `n` in `K`, so preallocating memory with `knk` and
+  ///  then using `jk` will crash because `knk` initializes `n` with its argument. If you want to allocate
+  ///  a memory in advance, use `knk` and then substitute a value after converting the `K` into a slice
+  ///  with `as_mut_K_slice`.
   pub fn jk(list: *mut K, value: K) -> K;
 
   /// Appends an interned char array to symbol list.
@@ -404,7 +383,7 @@ extern "C"{
   /// #[no_mangle]
   /// pub extern "C" fn create_symbol_list(_: K) -> K{
 	///   unsafe{
-	///	    let mut list=ktn(Q_SYMBOL as i32, 0);
+	///	    let mut list=ktn(qtype::SYMBOL as i32, 0);
 	///	    js(&mut list, ss(str_to_S!("Abraham")));
 	///   	js(&mut list, ss(str_to_S!("Isaac")));
 	///   	js(&mut list, ss(str_to_S!("Jacob")));
@@ -418,6 +397,12 @@ extern "C"{
   /// `Abraham`Isaac`Jacob
   /// q)`Abraham`Isaac`Jacob ~ summon_symbol_list[]
   /// ```
+  /// # Note
+  /// In this example we intentionally not allocated an array by `ktn(qtype::SYMBOL as i32, 0)` to use `js`
+  ///  to make it grow. When using `js`, it accesses current value of `n` in `K`, so preallocating memory
+  ///  with `ktn` and then using `js` will crash because `ktn` initializes `n` with its argument. If you want
+  ///  to allocate a memory in advance, use `ktn` and then substitute a value after converting the `K` into a
+  ///  slice with `as_mut_symbol_slice`.
   pub fn js(list: *mut K, symbol: S) -> K;
 
   /// Intern `n` chars from a char array.
@@ -438,7 +423,7 @@ extern "C"{
   /// extern "C"{
   ///   fn catchy(func: K, args: K) -> K{
   ///     let result=unsafe{ee(dot(func, args))};
-  ///     if (*result).qtype == -128{
+  ///     if (*result).qtype == qtype::ERROR{
   ///       println!("error: {}", (*result).symbol);
   ///       return KNULL;
   ///     }
@@ -465,14 +450,24 @@ extern "C"{
   /// ```
   /// use kdb_c_api::*;
   /// 
+  /// #[no_mangle]
   /// pub extern "C" fn to_table() -> K{
-  ///   let mut dicts=knk(3);
-  ///   (*dicts).list.n=0;
-  ///   for _ in 0..3{
-  ///     let keys=ktn(Q_SYMBOL, 2);
-  ///     
+  ///   unsafe{
+  ///     let mut dicts=knk(3);
+  ///     let dicts_slice=as_mut_K_slice(dicts);
+  ///     for i in 0..3{
+  ///       let keys=ktn(qtype::SYMBOL as i32, 2);
+  ///       let keys_slice=as_mut_symbol_slice(keys);
+	///		    keys_slice[0]=ss(str_to_S!("a"));
+	///		    keys_slice[1]=ss(str_to_S!("b"));
+  ///       let values=ktn(qtype::INT as i32, 4);
+  ///       as_mut_int_slice(values)[0..2].copy_from_slice(&[i*10, i*100]);
+  ///       dicts_slice[i as usize]=xD(keys, values);
+  ///     }
+  ///     // Format list of dictionary as a table. 
+  ///     // ([] a: 0 10 20i; b: 0 100 200i)
+  ///     k(0, str_to_S!("{[dicts] -1 _ dicts, (::)}"), dicts, KNULL!())
   ///   }
-  ///   jk(&mut dicts, 
   /// }
   /// ```
   pub fn k(handle: I, query: const_S,...) -> K;
@@ -607,6 +602,104 @@ extern "C"{
   */
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                              Functions                               //
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+//%% List Accessor %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+/// Dereference `K` as a mutable byte list.
+/// # Note
+/// Equivalent to C API macro `kG`.
+pub fn as_mut_byte_slice<'a>(k: K) -> &'a mut[G]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr(), (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable GUID slice.
+/// # Note
+/// Equivalent to C API macro `kU`.
+pub fn as_mut_guid_list<'a>(k: K) -> &'a mut[U]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut U, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable short slice.
+/// # Note
+/// Equivalent to C API macro `kH`.
+pub fn as_mut_short_slice<'a>(k: K) -> &'a mut[i16]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut i16, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable int slice.
+/// # Note
+/// Equivalent to C API macro `kI`.
+pub fn as_mut_int_slice<'a>(k: K) -> &'a mut[i32]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut i32, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable long slice.
+/// # Note
+/// Equivalent to C API macro `kJ`.
+pub fn as_mut_long_slice<'a>(k: K) -> &'a mut[i64]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut i64, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable real slice.
+/// # Note
+/// Equivalent to C API macro `kE`.
+pub fn as_mut_real_slice<'a>(k: K) -> &'a mut[f32]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut f32, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable float slice.
+/// # Note
+/// Equivalent to C API macro `kF`.
+pub fn as_mut_float_slice<'a>(k: K) -> &'a mut[f64]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut f64, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable short slice.
+/// # Note
+/// Equivalent to C API macro `kC`.
+pub fn as_mut_char_slice<'a>(k: K) -> &'a mut[C]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut C, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable symbol slice.
+/// # Note
+/// Equivalent to C API macro `kS`.
+pub fn as_mut_symbol_slice<'a>(k: K) -> &'a mut[S]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut S, (*k).value.list.n as usize)
+  }
+}
+
+/// Deference `K` as a mutable `K` slice.
+/// # Note
+/// Equivalent to C API macro `kK`.
+pub fn as_mut_K_slice<'a>(k: K) -> &'a mut[K]{
+  unsafe{
+    std::slice::from_raw_parts_mut((*k).value.list.G0.as_mut_ptr() as *mut K, (*k).value.list.n as usize)
+  }
+}
+
+//%% Utility %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
 /// Convert `S` to `&str`.
 /// # Extern
 /// ```no_run
@@ -618,7 +711,7 @@ extern "C"{
 /// #[no_mangle]
 /// pub extern "C" fn print_symbol(symbol: K) -> K{
 ///   unsafe{
-///     if (*symbol).qtype == -Q_SYMBOL{
+///     if (*symbol).qtype == -qtype::SYMBOL{
 ///       println!("symbol: `{}", S_to_str((*symbol).value.symbol));
 ///     }
 ///     // return null
@@ -645,7 +738,7 @@ pub fn S_to_str<'a>(cstring: S) -> &'a str{
 /// 
 /// #[no_mangle]
 /// pub extern "C" fn bigbang2(_: K) -> K{
-///   unsafe{ks(str_to_S("super_illusion\0"))}
+///   unsafe{ks(null_terminated_str_to_S("super_illusion\0"))}
 /// }
 /// ```
 /// ```q
@@ -670,7 +763,7 @@ pub extern "C" fn null_terminated_str_to_S(string: &str) -> S {
 /// 
 /// pub extern "C" fn must_be_int2(obj: K) -> K{
 ///   unsafe{
-///     if (*obj).qtype != -Q_INT{
+///     if (*obj).qtype != -qtype::INT{
 ///       krr(str_to_const_S("not an int"))
 ///     }
 ///     else{
