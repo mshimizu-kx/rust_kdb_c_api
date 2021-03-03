@@ -37,8 +37,12 @@ LIBPATH_: `libc_api_examples 2:
 .capi.create_symbol_list: LIBPATH_ (`create_symbol_list; 1);
 // k
 .capi.dictionary_list_to_table: LIBPATH_ (`dictionary_list_to_table; 1);
+// as_mut_slice
+.capi.modify_long_list_a_bit: LIBPATH_ (`modify_long_list_a_bit; 1);
 // str_to_const_S
 .capi.must_be_int: LIBPATH_ (`must_be_int; 1);
+// setm
+.capi.parallel_sym_change: LIBPATH_ (`parallel_sym_change; 1);
 // S_to_str
 .capi.print_symbol: LIBPATH_ (`print_symbol; 1);
 // dot
@@ -57,6 +61,14 @@ LIBPATH_: `libc_api_examples 2:
 
 // str_to_S
 .test.ASSERT_EQ["str_to_S"; .capi.bigbang[]; `super_illusion]
+
+//%% KUtility %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+// as_mut_slice
+// Assign to a variable to keep the result.
+.test.ASSERT_EQ["as_mut_slice - success"; .capi.modify_long_list_a_bit[list:1 2 3]; 1 30000 3]
+// as_mut_slice (return error)
+.test.ASSERT_ERROR["as_mut_slice - failure"; .capi.modify_long_list_a_bit; enlist enlist 1; "this list is not long enough"]
 
 //%% Constructors %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
@@ -83,6 +95,9 @@ LIBPATH_: `libc_api_examples 2:
 
 // dot
 .test.ASSERT_EQ["dot"; .capi.rust_parse[$; ("J"; "42")]; 42]
+
+// setm
+.test.ASSERT_EQ["dot"; .capi.parallel_sym_change[`a`b]; `replaced`symbolbol]
 
 //%% Utility Functions %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
