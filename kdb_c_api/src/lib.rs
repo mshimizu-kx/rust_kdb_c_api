@@ -264,7 +264,8 @@ pub trait KUtility{
   ///   if long_list.len() >= 2{
   ///     // Derefer as a mutable i64 slice.
   ///     long_list.as_mut_slice::<J>()[1]=30000_i64;
-  ///     long_list
+  ///     // Increment the counter for reuse on q side.
+  ///     r1(long_list)
   ///   }
   ///   else{
   ///     krr(null_terminated_str_to_const_S("this list is not long enough. how ironic...\0"))
@@ -278,7 +279,20 @@ pub trait KUtility{
   /// 1 30000 3
   /// q)ironic enlist 1
   /// ```
+  /// # Note
+  /// Intuitively the parameter should be `&mut self` but it restricts a manipulating
+  ///  `K` objects in the form of slice simultaneously. As copying a pointer is not
+  ///  an expensive operation, using `self` should be fine.
   fn as_mut_slice<'a, T>(self) -> &'a mut[T];
+
+  /// Get an underlying q byte.
+  fn get_byte(&self) -> Result<G, String>;
+
+  /// Get an underlying q int.
+  fn get_int(&self) -> Result<i32, String>;
+
+  /// Get an underlying q string.
+  fn get_string(&self) -> Result<&str, String>;
 
   /// Get a length of the list. More specifically, a value of `k0.value.list.n` for list types.
   ///  Otherwise 2 for table and 1 for atom and null.
@@ -300,6 +314,35 @@ impl KUtility for K{
   fn as_mut_slice<'a, T>(self) -> &'a mut[T]{
     unsafe{
       std::slice::from_raw_parts_mut((*self).value.list.G0.as_mut_ptr() as *mut T, (*self).value.list.n as usize)
+    }
+  }
+
+  fn get_byte(&self) -> Result<G, String>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::BYTE => Ok((**self).value.byte),
+        _ => Err("not a byte".to_string())
+      }
+    }
+  }
+
+  fn get_int(&self) -> Result<i32, String>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::INT | qtype::MONTH | qtype::DATE | qtype::MINUTE | qtype::SECOND | qtype::TIME => Ok((**self).value.int),
+        _ => Err("not an int".to_string())
+      }
+    }
+  }
+
+  fn get_string(&self) -> Result<&str, String>{
+    unsafe{
+      match (**self).qtype{
+        qtype::CHAR => {
+          Ok(str::from_utf8_unchecked_mut(self.as_mut_slice::<G>()))
+        },
+        _ => Err("not a string".to_string())
+      }
     }
   }
 
@@ -416,7 +459,7 @@ extern "C"{
 
   /// Constructor of q dictionary object.
   /// # Example
-  /// ```
+  /// ```no_run
   /// use kdb_c_api::*;
   /// 
   /// #[no_mangle]
@@ -434,9 +477,33 @@ extern "C"{
   ///   }
   /// }
   /// ```
+  /// ```q
+  /// q)create_dictionary: `libc_api_examples 2: (`create_dictionary; 1);
+  /// q)create_dictionary[]
+  /// 0| 2000.01.01 2000.01.02 2000.01.03
+  /// 1| "I'm afraid I would crash the application..."
+  /// ```
   pub fn xD(keys: K, values: K) -> K;
 
   /// Constructor of q error.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// pub extern "C" fn thai_kick(_: K) -> K{
+  ///   unsafe{
+  ///    krr(null_terminated_str_to_const_S("Thai kick unconditionally!!\0"))
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)monstrous: `libc_api_examples 2: (`thai_kick; 1);
+  /// q)thai_kick[]
+  /// q).capi.thai_kick[]
+  /// 'Thai kick unconditionally!!
+  /// [0]  .capi.thai_kick[]
+  ///      ^
+  /// ```
   pub fn krr(message: const_S) -> K;
 
   /// Appends a system-error message to string S before passing it to `krr`.
@@ -444,12 +511,36 @@ extern "C"{
 
   /// Appends a raw value to a list.
   ///  `list` points to a `K` object, which may be reallocated during the function.
-  ///  The contents of `list`, i.e. *x, will be updated in case of reallocation. 
+  ///  The contents of `list`, i.e. `*list`, will be updated in case of reallocation. 
   ///  Returns a pointer to the (potentially reallocated) `K` object.
+  /// # Note
+  /// Not sure how to use this...
   pub fn ja(list: *mut K, value: *const V) -> K;
 
   /// Appends a q list object to a q list.
   ///  Returns a pointer to the (potentially reallocated) `K` object.
+  /// ```no_run
+  /// #[no_mangle]
+  /// pub extern "C" fn concat_list(mut list1: K, list2: K) -> K{
+  ///   unsafe{
+  ///     jv(&mut list1, list2);
+  ///     r1(list1)
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)glue: `libc_api_examples 2: (`concat_list; 2);
+  /// q)glue[(::; `metals; `fire); ("clay"; 316)]
+  /// ::
+  /// `metals
+  /// `fire
+  /// "clay"
+  /// 316
+  /// q)glue[1 2 3; 4 5]
+  /// 1 2 3 4 5
+  /// q)glue[`a`b`c; `d`e]
+  /// `a`b`c`d`e
+  /// ```
   pub fn jv(list1: *mut K, list2: K) -> K;
 
   /// Appends a q object to a q list.
@@ -495,15 +586,17 @@ extern "C"{
   ///     js(&mut list, ss(str_to_S!("Abraham")));
   ///     js(&mut list, ss(str_to_S!("Isaac")));
   ///     js(&mut list, ss(str_to_S!("Jacob")));
+  ///     js(&mut list, sn(str_to_S!("Josephine"), 6));
   ///     list
   ///   }
   /// }
   /// ```
   /// ```q
-  /// q)summon_symbol_list:`libc_api_examples 2: (`create_symbol_list; 1)
-  /// q)summon_symbol_list[]
-  /// `Abraham`Isaac`Jacob
-  /// q)`Abraham`Isaac`Jacob ~ summon_symbol_list[]
+  /// q)summon:`libc_api_examples 2: (`create_symbol_list; 1)
+  /// q)summon[]
+  /// `Abraham`Isaac`Jacob`Joseph
+  /// q)`Abraham`Isaac`Jacob`Joseph ~ summon[]
+  /// 1b
   /// ```
   /// # Note
   /// In this example we intentionally not allocated an array by `ktn(qtype::SYMBOL as i32, 0)` to use `js`
@@ -515,6 +608,8 @@ extern "C"{
 
   /// Intern `n` chars from a char array.
   ///  Returns an interned char array and should be used to add char array to a symbol vector.
+  /// # Example
+  /// See the example of [`js`](function.js).
   pub fn sn(string: S, n: I) -> S;
 
   /// Intern a null-terminated char array.
@@ -533,6 +628,8 @@ extern "C"{
   ///     let result=unsafe{ee(dot(func, args))};
   ///     if (*result).qtype == qtype::ERROR{
   ///       println!("error: {}", (*result).symbol);
+  ///       // Decrement reference count of the error object
+  ///       r0(result);
   ///       return KNULL;
   ///     }
   ///     else{
@@ -595,19 +692,15 @@ extern "C"{
   /// - 1: retain enumerations, allow serialization of timespan and timestamp: Useful for passing data between threads
   /// - 2: unenumerate, allow serialization of timespan and timestamp
   /// - 3: unenumerate, compress, allow serialization of timespan and timestamp
+  /// # Note
+  /// Probably not used.
   pub fn b9(mode: I, qobject: K) -> K;
 
   /// Deserialize a bytes into q object.
   /// # Note
-  /// On success, returns deserialized K object. On error, NULL is returned; use `ee` to retrieve the error string.
+  /// - On success, returns deserialized `K` object. On error, `(K) 0` is returned; use `ee` to retrieve the error string.
+  /// - Probably not used.
   pub fn d9(bytes: K) -> K;
-
-  /// Verify that the received bytes is a valid IPC message.
-  ///  The message is not modified.
-  ///  Returns `0` if not valid.
-  /// # Note
-  /// Decompressed data only.
-  pub fn okx(bytes: K) -> I;
 
   //%% Callback %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
@@ -624,10 +717,60 @@ extern "C"{
 
   //%% Reference Count %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
-  /// Decrement reference count of the q object.
+  /// Decrement reference count of the q object. The decrement must be done when `k` function gets an error
+  ///  object whose type is `qtype::ERROR` and when you created an object but do not intend to return it to
+  ///  q side. See details on [the reference page](https://code.kx.com/q/interfaces/c-client-for-q/#managing-memory-and-reference-counting).
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub ectern "C" fn idle_man(_: K)->K{
+  ///   unsafe{
+  ///     // Creare an int object.
+  ///     let int=ki(777);
+  ///     // Changed the mind. Discard it.
+  ///     r0(int);
+  ///   }
+  ///   // Return null.
+  ///   KNULL!()
+  /// }
+  /// ```
+  /// ```q
+  /// q)idle_man: LIBPATH_ (`idle_man; 1);
+  /// q)idle_man[]
+  /// q)
+  /// ```
   pub fn r0(qobject: K) -> V;
 
-  /// Increment reference count of the q object.
+  /// Increment reference count of the q object. Increment must be done when you passed arguments
+  ///  to Rust function and intends to return it to q side or when you pass some `K` objects to `k`
+  ///  function and intend to use the parameter after the call.
+  ///  See details on [the reference page](https://code.kx.com/q/interfaces/c-client-for-q/#managing-memory-and-reference-counting).
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn pass_through_cave(pedestrian: K) -> K{
+  ///   unsafe{
+  ///     let item=k(0, str_to_S!("get_item1"), r1(pedestrian), KNULL!());
+  ///     println!("What do you see, son of man?: {}", item.get_string().expect("oh no"));
+  ///     r0(item);
+  ///     let item=k(0, str_to_S!("get_item2"), r1(pedestrian), KNULL!());
+  ///     println!("What do you see, son of man?: {}", item.get_string().expect("oh no"));
+  ///     r0(item);
+  ///     r1(pedestrian)
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)get_item1:{[man] "a basket of summer fruit"};
+  /// q)get_item2:{[man] "boiling pot, facing away from the north"}
+  /// q).capi.pass_through_cave[`son_of_man]
+  /// What do you see, son of man?: a basket of summer fruit
+  /// What do you see, son of man?: boiling pot, facing away from the north
+  /// ```
   pub fn r1(qobject: K) -> K;
 
   //%% Miscellaneous %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
@@ -664,10 +807,9 @@ extern "C"{
   /// #[no_mangle]
   /// pub extern "C" fn parallel_sym_change(list: K) -> K{
   ///   unsafe{
-  ///     // `k0` implements Send. `K` cannot have it because it is a pointer.
-  ///     // Increment reference count for copy.
-  ///     let mut inner=*r1(list);
-  ///     // Lock symbol.
+  ///     // `K` cannot have `Send` because it is a pointer but `k0` does.
+  ///     let mut inner=*list;
+  ///     // Lock symbol before creating an internal symbol on another thread.
   ///     setm(1);
   ///     let task=std::thread::spawn(move || {
   ///        inner.as_mut_slice::<S>()[0]=ss(str_to_S!("replaced"));
@@ -684,7 +826,8 @@ extern "C"{
   ///         // Unlock.
   ///         setm(0);
   ///         (*list)=l;
-  ///         list
+  ///         // Increment reference count for copy.
+  ///         r1(list)
   ///       }
   ///     }
   ///   }
@@ -727,6 +870,45 @@ extern "C"{
 
   /* Unsupported
 
+  /// Connect with timeout (millisecond) and capability. The value of capability is:
+  /// - 1: 1TB limit
+  /// - 2: use TLS
+  /// Return value is either of:
+  /// - 0   Authentication error
+  /// - -1   Connection error
+  /// - -2   Timeout error
+  /// - -3   OpenSSL initialization failed
+  /// # Note
+  /// Standalone application only. Not for a shared library.
+  pub fn khpunc(host: S, port: I, credential: S, timeout_millis: I, capability: I) -> I;
+
+  /// Connect with timeout (millisecond).
+  ///  Return value is either of:
+  /// - 0   Authentication error
+  /// - -1   Connection error
+  /// - -2   Timeout error
+  /// # Note
+  /// Standalone application only. Not for a shared library.
+  pub fn khpun(host: const_S, port: I, credential: const_S, timeout_millis: I) -> I;
+
+  /// Connect with no timeout.
+  pub fn khpu(host: const_S, port: I, credential: const_S) -> I;
+
+  /// Connect anonymously.
+  pub fn khp(host: const_S, port: I) -> I;
+
+  /// Close the handle to a q process.
+  /// # Note
+  /// Standalone application only. Not for a shared library.
+  pub fn kclose(handle: I) -> V;
+
+  /// Verify that the received bytes is a valid IPC message.
+  ///  The message is not modified.
+  ///  Returns `0` if not valid.
+  /// # Note
+  /// Decompressed data only.
+  pub fn okx(bytes: K) -> I;
+
   /// Return a dictionary of TLS setting. See `-26!`.
   /// # Note
   /// As this library is purposed to build shared object, this function will not add a value.
@@ -759,7 +941,7 @@ extern "C"{
 
 //%% Utility %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
-/// Convert `S` to `&str`.
+/// Convert `S` to `&str`. This function is intended to convert symbol type (null-terminated char-array) to `str`.
 /// # Extern
 /// ```no_run
 /// #[macro_use]

@@ -40,6 +40,8 @@ pub extern "C" fn catchy(func: K, args: K) -> K{
     let result=ee(dot(func, args));
     if (*result).qtype == -qtype::ERROR{
       println!("error: {}", S_to_str((*result).value.symbol));
+      // Decrement reference count of the error object
+      r0(result);
       KNULL!()
     }
     else{
@@ -53,7 +55,6 @@ pub extern "C" fn dictionary_list_to_table() -> K{
   unsafe{
     let dicts=knk(3);
     let dicts_slice=dicts.as_mut_slice::<K>();
-    //(*dicts).value.list.n=0;
     for i in 0..3{
       let keys=ktn(qtype::SYMBOL as i32, 2);
       let keys_slice=keys.as_mut_slice::<S>();
@@ -110,6 +111,15 @@ test result: ok. 12 passed; 0 failed
 q)
 
 ```
+
+## Document
+
+The document of this crate itself is on the [crates.io page](https://crates.io.docs/kdb_c_api).
+
+For details of C API itself, check the documents of KX website.
+
+- [Refernce](https://code.kx.com/q/interfaces/capiref/)
+- [Memory management](https://code.kx.com/q/interfaces/c-client-for-q/#managing-memory-and-reference-counting)
 
 ## Note
 
