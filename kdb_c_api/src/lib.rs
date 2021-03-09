@@ -296,7 +296,7 @@ pub trait KUtility{
   /// Get a length of the list. More specifically, a value of `k0.value.list.n` for list types.
   ///  Otherwise 2 for table and 1 for atom and null.
   /// # Example
-  /// See the example of [`as_mut_slice`](as_mut_slice).
+  /// See the example of [`as_mut_slice`](trait.KUtility.html#tymethod.as_mut_slice).
   fn len(&self) -> i64;
 }
 
@@ -375,12 +375,12 @@ impl KUtility for K{
 
 
 impl k0{
-  /// Derefer `k0` as a mutable slice. For supported types, see [`as_mut_slice`](as_mut_slice)
+  /// Derefer `k0` as a mutable slice. For supported types, see [`as_mut_slice`](trait.KUtility.html#tymethod.as_mut_slice)
   /// # Note
   /// Used if `K` needs to be sent to another thread. `K` cannot implement `Send` and therefore
   ///  its inner struct must besent instead.
   /// # Example
-  /// See the example of [`setm`](setm).
+  /// See the example of [`setm`](fn.setm.html).
   pub fn as_mut_slice<'a, T>(&mut self) -> &'a mut[T]{
     unsafe{
       std::slice::from_raw_parts_mut(self.value.list.G0.as_mut_ptr() as *mut T, self.value.list.n as usize)
@@ -654,12 +654,12 @@ extern "C"{
 
   /// Constructor of q compound list.
   /// # Example
-  /// See the example of [`xD`](function.xD).
+  /// See the example of [`xD`](fn.xD.html).
   pub fn knk(qtype: I, ...) -> K;
   
   /// Constructor of q simple list.
   /// # Example
-  /// See the example of [`xD`](function.xD).
+  /// See the example of [`xD`](fn.xD.html).
   pub fn ktn(qtype: I, length: J) -> K;
   
   /// Constructor of q string object.
@@ -930,13 +930,13 @@ extern "C"{
   /// Intern `n` chars from a char array.
   ///  Returns an interned char array and should be used to add char array to a symbol vector.
   /// # Example
-  /// See the example of [`js`](function.js).
+  /// See the example of [`js`](fn.js.html).
   pub fn sn(string: S, n: I) -> S;
 
   /// Intern a null-terminated char array.
   ///  Returns an interned char array and should be used to add char array to a symbol vector.
   /// # Example
-  /// See the example of [`js`](function.js).
+  /// See the example of [`js`](fn.js.html).
   pub fn ss(string: S) -> S;
 
   /// Capture (and reset) error string into usual error object.
