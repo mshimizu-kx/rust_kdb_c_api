@@ -30,6 +30,7 @@ pub extern "C" fn create_symbol_list(_: K) -> K{
     js(&mut list, ss(str_to_S!("Abraham")));
     js(&mut list, ss(str_to_S!("Isaac")));
     js(&mut list, ss(str_to_S!("Jacob")));
+    js(&mut list, sn(str_to_S!("Josephine"), 6));
     list
   }
 }
@@ -76,10 +77,10 @@ q can use these functions like this:
 
 ```q
 
-q)summon_symbol_list:`libc_api_examples 2: (`create_symbol_list; 1)
-q)summon_symbol_list[]
-`Abraham`Isaac`Jacob
-q)`Abraham`Isaac`Jacob ~ summon_symbol_list[]
+q)summon:`libc_api_examples 2: (`create_symbol_list; 1)
+q)summon[]
+`Abraham`Isaac`Jacob`Joseph
+q)`Abraham`Isaac`Jacob`Joseph ~ summon[]
 q)catchy: `libc_api_examples 2: (`catchy; 2);
 q)catchy[$; ("J"; "42")]
 42

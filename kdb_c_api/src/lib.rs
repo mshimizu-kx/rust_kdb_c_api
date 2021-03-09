@@ -1,9 +1,8 @@
-//! Rust FFI header file mirroring C API header file (`k.h`) for kdb+ interface. The objective usage is to build a
-//!  shared library in Rust. For a client library, see [rustkdb](https://github.com/KxSystems/rustkdb).
+//! Rust crate mirroring the C API header file (`k.h`) for kdb+. The expected usage is to build a
+//!  shared library for kdb+ in Rust. For a client library, see [rustkdb](https://github.com/KxSystems/rustkdb).
 //! 
-//! for details of functions, structures and macros, see [C API for kdb+](https://code.kx.com/q/interfaces/capiref/).
 //! # Note
-//! - This file is for kdb+ version 3.0+.
+//! - This library is for kdb+ version 3.0+.
 //! - Meangless C macros are excluded.
 
 #![allow(non_upper_case_globals)]
@@ -24,7 +23,7 @@ use std::os::raw::{c_char, c_double, c_float, c_int, c_longlong, c_short, c_scha
 
 pub mod qtype{
   //! This module provides a list of q types. The motivation to contain them in a module is to 
-  //!  tie them up as related items rather than scattered values. Hence user should use them these
+  //!  tie them up as related items rather than scattered values. Hence user should use these
   //!  indicators with `qtype::` prefix, e.g., `qtype::BOOL`.
   
   /// Type indicator of q mixed list.
@@ -124,7 +123,7 @@ macro_rules! KNULL {
   };
 }
 
-/// Convert `&str` to `S`.
+/// Convert `&str` to `S` (null-terminated character array).
 /// # Example
 /// ```no_run
 /// use kdb_c_api::*;
@@ -192,7 +191,7 @@ pub struct U{
 pub struct k0_list_info{
   /// Length of the list.
   pub n: J,
-  /// Pointer referring to the head of teh list. This pointer will be interpreted
+  /// Pointer referring to the head of the list. This pointer will be interpreted
   ///  as various types when accessing `K` object to edit the list.
   pub G0: [G; 1]
 }
@@ -305,6 +304,15 @@ pub trait KUtility{
 //                            Implementation                            //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
+//%% U %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+impl U{
+  /// Create 16-byte GUID object.
+  pub fn new(guid: [u8; 16]) -> Self{
+    U{guid:guid}
+  }
+}
+
 //%% K %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
 unsafe impl Send for k0_inner{}
@@ -369,9 +377,8 @@ impl KUtility for K{
 impl k0{
   /// Derefer `k0` as a mutable slice. For supported types, see [`as_mut_slice`](as_mut_slice)
   /// # Note
-  /// - Used if `K` needs to be sent to another thread because `K` cannot implement `Send`
-  ///  and its inner struct must besent instead.
-  /// - This redundant implementation is due to infeasibility of `Deref` trait for `K` since it is a pointer.
+  /// Used if `K` needs to be sent to another thread. `K` cannot implement `Send` and therefore
+  ///  its inner struct must besent instead.
   /// # Example
   /// See the example of [`setm`](setm).
   pub fn as_mut_slice<'a, T>(&mut self) -> &'a mut[T]{
@@ -395,67 +402,382 @@ extern "C"{
   pub fn ka(qtype: I) -> K;
 
   /// Constructor of q bool object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_bool(_: K) -> K{
+  ///   unsafe{kb(1)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)yes: LIBPATH_ (`create_bool; 1);
+  /// q)yes[]
+  /// 1b
+  /// ```
   pub fn kb(boolean: I) -> K;
 
   /// Constructor of q GUID object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_guid(_: K) -> K{
+  ///   unsafe{ku(U::new([0x1e_u8, 0x11, 0x17, 0x0c, 0x42, 0x24, 0x25, 0x2c, 0x1c, 0x14, 0x1e, 0x22, 0x4d, 0x3d, 0x46, 0x24]))}
+  /// }
+  /// ```
+  /// ```q
+  /// q)create_guid: LIBPATH_ (`create_guid; 1);
+  /// q)create_guid[]
+  /// 1e11170c-4224-252c-1c14-1e224d3d4624
+  /// ```
   pub fn ku(array: U) -> K;
 
   /// Constructor of q byte object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_byte(_: K) -> K{
+  ///   unsafe{kg(0x3c)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)create_byte: LIBPATH_ (`create_byte; 1);
+  /// q)create_byte[]
+  /// 0x3c
+  /// ```
   pub fn kg(byte: I) -> K;
 
   /// Constructor of q short object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_short(_: K) -> K{
+  ///   unsafe{kh(-144)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)shortage: LIBPATH_ (`create_short; 1);
+  /// q)shortage[]
+  /// -144h
+  /// ```
   pub fn kh(short: I) -> K;
 
   /// Constructor of q int object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_int(_: K) -> K{
+  ///   unsafe{ki(86400000)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)trvial: LIBPATH_ (`create_int; 1);
+  /// q)trivial[]
+  /// 86400000i
+  /// ```
   pub fn ki(int: I) -> K;
 
   /// Constructor of q long object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_long(_: K) -> K{
+  ///   unsafe{kj(-668541276001729000)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)lengthy: LIBPATH_ (`create_long; 1);
+  /// q)lengthy[]
+  /// -668541276001729000
+  /// ```
   pub fn kj(long: J) -> K;
 
   /// Constructor of q real object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_real(_: K) -> K{
+  ///   unsafe{ke(0.00324)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)reality: LIBPATH_ (`create_real; 1);
+  /// q)reality[]
+  /// 0.00324e
+  /// ```
   pub fn ke(real: F) -> K;
 
   /// Constructor of q float object.
+  /// # Example
+  /// ```
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_float(_: K) -> K{
+  ///   unsafe{kf(-6302.620)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)coffee_float: LIBPATH_ (`create_float; 1);
+  /// q)coffee_float[]
+  /// -6302.62
+  /// ```
   pub fn kf(float: F) -> K;
 
   ///  Constructor of q char object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_char(_: K) -> K{
+  ///   unsafe{kc('q' as I)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)quiz: LIBPATH_ (`create_char; 1);
+  /// q)quiz[]
+  /// "q"
+  /// ```
   pub fn kc(character: I) -> K;
 
   /// Constructor of q symbol object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_symbol(_: K) -> K{
+  ///   unsafe{ks(str_to_S!("symbolism"))}
+  /// }
+  /// ```
+  /// ```q
+  /// q)formal: LIBPATH_ (`create_symbol; 1);
+  /// q)formal[]
+  /// `symbolism
+  /// q)`symbolism ~ formal[]
+  /// 1b
+  /// ```
   pub fn ks(symbol: S) -> K;
 
   /// Constructor of q timestamp or timespan object.
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_timestamp(_: K) -> K{
+  ///   // 2015.03.16D00:00:00:00.000000000
+  ///   unsafe{ktj(-qtype::TIMESTAMP as I, 479779200000000000)}
+  /// }
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_timespan(_: K) -> K{
+  ///   // -1D01:30:00.001234567
+  ///   unsafe{ktj(-qtype::TIMESPAN as I, -91800001234567)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)hanko: LIBPATH_ (`create_timestamp; 1);
+  /// q)hanko[]
+  /// 2015.03.16D00:00:00.000000000
+  /// q)duration: LIBPATH_ (`create_timespan; 1);
+  /// q)duration[]
+  /// -1D01:30:00.001234567
+  /// ```
   pub fn ktj(qtype: I, nanoseconds: J) -> K;
 
   /// Constructor of q date object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_date(_: K) -> K{
+  ///   // 1999.12.25
+  ///   unsafe{kd(-7)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)christmas_at_the_END: LIBPATH_ (`create_date; 1);
+  /// q)christmas_at_the_END[]
+  /// 1999.12.25
+  /// ```
   pub fn kd(date: I) -> K;
 
   /// Constructor of q datetime object.
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_datetime(_: K) -> K{
+  ///   // 2015.03.16T12:00:00:00.000
+  ///   unsafe{kz(5553.5)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)omega_date: LIBPATH_ (`create_datetime; 1);
+  /// q)omega_date[]
+  /// 2015.03.16T12:00:00.000
+  /// ```
   pub fn kz(datetime: F) -> K;
 
   /// Constructor of q time object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_time(_: K) -> K{
+  ///   // -01:30:00.123
+  ///   unsafe{kt(-5400123)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)ancient: LIBPATH_ (`create_time; 1);
+  /// q)ancient[]
+  /// -01:30:00.123
+  /// ```
   pub fn kt(time: I) -> K;
 
-  /// Constructor of q keyed table object.
-  pub fn knt(keynum: J, table: K) -> K;
-
-  /// Constructor of simple q table object from q keyed table object.
-  pub fn ktd(keyedtable: K) -> K;
-
   /// Constructor of q compound list.
+  /// # Example
+  /// See the example of [`xD`](function.xD).
   pub fn knk(qtype: I, ...) -> K;
   
   /// Constructor of q simple list.
+  /// # Example
+  /// See the example of [`xD`](function.xD).
   pub fn ktn(qtype: I, length: J) -> K;
   
   /// Constructor of q string object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_string(_: K) -> K{
+  ///   unsafe{kp(str_to_S!("this is a text."))}
+  /// }
+  /// ```
+  /// ```q
+  /// q)text: LIBPATH_ (`create_string; 1);
+  /// q)text[]
+  /// "this is a text."
+  /// ```
   pub fn kp(chararray: S) -> K;
 
   /// Constructor if q string object with a fixed length.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_string2(_: K) -> K{
+  ///   unsafe{kpn(str_to_S!("The meeting was too long and I felt it s..."), 24)}
+  /// }
+  /// ```
+  /// ```q
+  /// q)speak_inwardly: LIBPATH_ (`create_string2; 1);
+  /// q)speak_inwardly[]
+  /// "The meeting was too long"
+  /// ```
   pub fn kpn(chararray: S, length: J) -> K;
 
   /// Constructor of q table object from q dictionary object.
+  /// # Note
+  /// Basically this is a `flip` command of q. Hence the value of the dictionary must have
+  ///  lists as its elements.
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_table(_: K) -> K{
+  ///   unsafe{
+  ///     let keys=ktn(qtype::SYMBOL as I, 2);
+  ///     let keys_slice=keys.as_mut_slice::<S>();
+  ///     keys_slice[0]=ss(str_to_S!("time"));
+  ///     keys_slice[1]=ss(str_to_S!("temperature"));
+  ///     let values=knk(2);
+  ///     let time=ktn(qtype::TIMESTAMP as I, 3);
+  ///     // 2003.10.10D02:24:19.167018272 2006.05.24D06:16:49.419710368 2008.08.12D23:12:24.018691392
+  ///     time.as_mut_slice::<J>().copy_from_slice(&[119067859167018272_i64, 201766609419710368, 271897944018691392]);
+  ///     let temperature=ktn(qtype::FLOAT as I, 3);
+  ///     temperature.as_mut_slice::<F>().copy_from_slice(&[22.1_f64, 24.7, 30.5]);
+  ///     values.as_mut_slice::<K>().copy_from_slice(&[time, temperature]);
+  ///     xT(xD(keys, values))
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)climate_change: LIBPATH_ (`create_table; 1);
+  /// q)climate_change[]
+  /// time                          temperature
+  /// -----------------------------------------
+  /// 2003.10.10D02:24:19.167018272 22.1       
+  /// 2006.05.24D06:16:49.419710368 24.7       
+  /// 2008.08.12D23:12:24.018691392 30.5    
+  /// ```
   pub fn xT(dictionary: K) -> K;
+
+  /// Constructor of simple q table object from q keyed table object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_keyed_table(dummy: K) -> K{
+  ///   unsafe{knt(1, create_table(dummy))}
+  /// }
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn keyed_to_simple_table(dummy: K) -> K{
+  ///   unsafe{ktd(create_keyed_table(dummy))}
+  /// }
+  /// ```
+  /// ```q
+  /// q)unkey: LIBPATH_ (`keyed_to_simple_table; 1);
+  /// q)unkey[]
+  /// time                          temperature
+  /// -----------------------------------------
+  /// 2003.10.10D02:24:19.167018272 22.1       
+  /// 2006.05.24D06:16:49.419710368 24.7       
+  /// 2008.08.12D23:12:24.018691392 30.5    
+  /// ```
+  pub fn ktd(keyedtable: K) -> K;
+
+  /// Constructor of q keyed table object.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn create_keyed_table(dummy: K) -> K{
+  ///   unsafe{knt(1, create_table(dummy))}
+  /// }
+  /// ```
+  /// ```q
+  /// q)locker: LIBPATH_ (`create_keyed_table; 1);
+  /// q)locker[]
+  /// time                         | temperature
+  /// -----------------------------| -----------
+  /// 2003.10.10D02:24:19.167018272| 22.1       
+  /// 2006.05.24D06:16:49.419710368| 24.7       
+  /// 2008.08.12D23:12:24.018691392| 30.5  
+  /// ```
+  pub fn knt(keynum: J, table: K) -> K;
 
   /// Constructor of q dictionary object.
   /// # Example
@@ -498,15 +820,14 @@ extern "C"{
   /// ```
   /// ```q
   /// q)monstrous: `libc_api_examples 2: (`thai_kick; 1);
-  /// q)thai_kick[]
-  /// q).capi.thai_kick[]
+  /// q)monstrous[]
   /// 'Thai kick unconditionally!!
-  /// [0]  .capi.thai_kick[]
+  /// [0]  monstrous[]
   ///      ^
   /// ```
   pub fn krr(message: const_S) -> K;
 
-  /// Appends a system-error message to string S before passing it to `krr`.
+  /// Similar to krr but this function appends a system-error message to string S before passing it to `krr`.
   pub fn orr(message: const_S) -> K;
 
   /// Appends a raw value to a list.
@@ -770,6 +1091,7 @@ extern "C"{
   /// q).capi.pass_through_cave[`son_of_man]
   /// What do you see, son of man?: a basket of summer fruit
   /// What do you see, son of man?: boiling pot, facing away from the north
+  /// `son_of_man
   /// ```
   pub fn r1(qobject: K) -> K;
 

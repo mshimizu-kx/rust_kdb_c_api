@@ -29,20 +29,60 @@ LIBPATH_: `libc_api_examples 2:
 .capi.bigbang2: LIBPATH_ (`bigbang2; 1);
 // ee
 .capi.catchy: LIBPATH_ (`catchy; 2);
+// kb
+.capi.create_bool: LIBPATH_ (`create_bool; 1);
+// kg
+.capi.create_byte: LIBPATH_ (`create_byte; 1);
+// ku
+.capi.create_guid: LIBPATH_ (`create_guid; 1);
+// ki
+.capi.create_int: LIBPATH_ (`create_int; 1);
 // jv
 .capi.concat_list: LIBPATH_ (`concat_list; 2);
+// kj
+.capi.create_long: LIBPATH_ (`create_long; 1);
+// kc
+.capi.create_char: LIBPATH_ (`create_char; 1);
 // jk
 .capi.create_compound_list: LIBPATH_ (`create_compound_list; 1);
+// kd
+.capi.create_date: LIBPATH_ (`create_date; 1);
+// kz
+.capi.create_datetime: LIBPATH_ (`create_datetime; 1);
 // xD
 .capi.create_dictionary: LIBPATH_ (`create_dictionary; 1);
+// kf
+.capi.create_float: LIBPATH_ (`create_float; 1);
+// knt
+.capi.create_keyed_table: LIBPATH_ (`create_keyed_table; 1);
+// ke
+.capi.create_real: LIBPATH_ (`create_real; 1);
+// kh
+.capi.create_short: LIBPATH_ (`create_short; 1);
+// kp
+.capi.create_string: LIBPATH_ (`create_string; 1);
+// kpn
+.capi.create_string2: LIBPATH_ (`create_string2; 1);
+// ks
+.capi.create_symbol: LIBPATH_ (`create_symbol; 1);
 // js
 .capi.create_symbol_list: LIBPATH_ (`create_symbol_list; 1);
+// xT
+.capi.create_table: LIBPATH_ (`create_table; 1);
+// kt
+.capi.create_time: LIBPATH_ (`create_time; 1);
+// ktj
+.capi.create_timespan: LIBPATH_ (`create_timespan; 1);
+// ktj
+.capi.create_timestamp: LIBPATH_ (`create_timestamp; 1);
 // dj
 .capi.days_to_date: LIBPATH_ (`days_to_date; 1);
 // k
 .capi.dictionary_list_to_table: LIBPATH_ (`dictionary_list_to_table; 1);
 // r0
 .capi.idle_man: LIBPATH_ (`idle_man; 1);
+// ktd
+.capi.keyed_to_simple_table: LIBPATH_ (`keyed_to_simple_table; 1);
 // as_mut_slice
 .capi.modify_long_list_a_bit: LIBPATH_ (`modify_long_list_a_bit; 1);
 // str_to_const_S
@@ -84,6 +124,69 @@ LIBPATH_: `libc_api_examples 2:
 
 //%% Constructors %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
+// kb
+.test.ASSERT_EQ["kb"; .capi.create_bool[]; 1b]
+
+// ku
+.test.ASSERT_EQ["ku"; .capi.create_guid[]; "G"$"1e11170c-4224-252c-1c14-1e224d3d4624"]
+
+// kg
+.test.ASSERT_EQ["kg"; .capi.create_byte[]; 0x3c]
+
+// kh
+.test.ASSERT_EQ["kh"; .capi.create_short[]; -144h]
+
+// ki
+.test.ASSERT_EQ["ki"; .capi.create_int[]; 86400000i]
+
+// kj
+.test.ASSERT_EQ["kj"; .capi.create_long[]; -668541276001729000]
+
+// ke
+.test.ASSERT_EQ["ke"; .capi.create_real[]; 0.00324e]
+
+// kf
+.test.ASSERT_EQ["kf"; .capi.create_float[]; -6302.620]
+
+// kc
+.test.ASSERT_EQ["kc"; .capi.create_char[]; "q"]
+
+// ks
+.test.ASSERT_EQ["ks"; .capi.create_symbol[]; `symbolism]
+
+// ktj - timestamp
+.test.ASSERT_EQ["ktj - timestamp"; .capi.create_timestamp[]; 2015.03.16D00:00:00:00.000000000]
+
+// ktj - timespan
+.test.ASSERT_EQ["ktj - timespan"; .capi.create_timespan[]; -1D01:30:00.001234567]
+
+// kd
+.test.ASSERT_EQ["kd"; .capi.create_date[]; 1999.12.25]
+
+// kz
+.test.ASSERT_EQ["kz"; .capi.create_datetime[]; 2015.03.16T12:00:00:00]
+
+// kt
+.test.ASSERT_EQ["kz"; .capi.create_time[]; -01:30:00.123]
+
+// kp
+.test.ASSERT_EQ["kp"; .capi.create_string[]; "this is a text."]
+
+// kpn
+.test.ASSERT_EQ["kpn"; .capi.create_string2[]; "The meeting was too long"]
+
+// xT
+.test.ASSERT_EQ["xT"; .capi.create_table[]; table:([] time: 2003.10.10D02:24:19.167018272 2006.05.24D06:16:49.419710368 2008.08.12D23:12:24.018691392; temperature: 22.1, 24.7, 30.5)]
+
+// ktd
+.test.ASSERT_EQ["xT"; .capi.keyed_to_simple_table[]; table]
+
+// xD
+.test.ASSERT_EQ["xD"; .capi.create_dictionary[]; 0 1i!(2000.01.01 2000.01.02 2000.01.03; "I'm afraid I would crash the application...")]
+
+// knt
+.test.ASSERT_EQ["xT"; .capi.create_keyed_table[]; 1!table]
+
 // krr
 .test.ASSERT_ERROR["krr"; .capi.thai_kick; enlist (::); "Thai kick unconditionally!!"]
 
@@ -97,9 +200,6 @@ LIBPATH_: `libc_api_examples 2:
 
 // js
 .test.ASSERT_EQ["js"; .capi.create_symbol_list[]; `Abraham`Isaac`Jacob`Joseph]
-
-// xD
-.test.ASSERT_EQ["xD"; .capi.create_dictionary[]; 0 1i!(2000.01.01 2000.01.02 2000.01.03; "I'm afraid I would crash the application...")]
 
 // ee
 .test.ASSERT_EQ["ee - success"; .capi.catchy[$; ("S"; "rust")]; `rust]
