@@ -55,10 +55,16 @@ LIBPATH_: `libc_api_examples 2:
 .capi.create_float: LIBPATH_ (`create_float; 1);
 // knt
 .capi.create_keyed_table: LIBPATH_ (`create_keyed_table; 1);
+// new_minute
+.capi.create_minute: LIBPATH_ (`create_minute; 1);
+// new_month
+.capi.create_month: LIBPATH_ (`create_month; 1);
 // ke
 .capi.create_real: LIBPATH_ (`create_real; 1);
 // kh
 .capi.create_short: LIBPATH_ (`create_short; 1);
+// new_second
+.capi.create_second: LIBPATH_ (`create_second; 1);
 // kp
 .capi.create_string: LIBPATH_ (`create_string; 1);
 // kpn
@@ -245,6 +251,15 @@ get_item2:{[man] "boiling pot, facing away from the north"}
 
 // null_terminated_str_to_const_S
 .test.ASSERT_ERROR["str_to_const_S"; .capi.must_be_int; enlist 10000; "not an int"]
+
+// new_month
+.test.ASSERT_EQ["new_month"; .capi.create_month[]; 2010.07m]
+
+// new_minute
+.test.ASSERT_EQ["new_minute"; .capi.create_minute[]; 10:40]
+
+// new_second
+.test.ASSERT_EQ["new_second"; .capi.create_second[]; -02:00:00]
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                          	  Result   	        		                  //

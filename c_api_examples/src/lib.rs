@@ -408,7 +408,7 @@ pub extern "C" fn print_symbol(symbol: K) -> K{
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//                              Functions                               //
+//                              Utility                                 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /// Example of `null_terminated_str_to_S`.
@@ -417,4 +417,29 @@ pub extern "C" fn bigbang2(_: K) -> K{
   unsafe{
     ks(null_terminated_str_to_S("super_illusion\0"))
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                              Re-export                               //
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+/// Example of `new_month`.
+#[no_mangle]
+pub extern "C" fn create_month(_: K) -> K{
+  // 2010.07m
+  new_month(126)
+}
+
+/// Example of `new_minute`.
+#[no_mangle]
+pub extern "C" fn create_minute(_: K) -> K{
+  // 10:40
+  new_minute(640)
+}
+
+/// Example of `new_second`.
+#[no_mangle]
+pub extern "C" fn create_second(_: K) -> K{
+  // -02:00:00
+  new_second(-7200)
 }

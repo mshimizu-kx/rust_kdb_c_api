@@ -412,7 +412,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)yes: LIBPATH_ (`create_bool; 1);
+  /// q)yes: libc_api_examples (`create_bool; 1);
   /// q)yes[]
   /// 1b
   /// ```
@@ -429,7 +429,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)create_guid: LIBPATH_ (`create_guid; 1);
+  /// q)create_guid: libc_api_examples (`create_guid; 1);
   /// q)create_guid[]
   /// 1e11170c-4224-252c-1c14-1e224d3d4624
   /// ```
@@ -446,7 +446,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)create_byte: LIBPATH_ (`create_byte; 1);
+  /// q)create_byte: libc_api_examples (`create_byte; 1);
   /// q)create_byte[]
   /// 0x3c
   /// ```
@@ -463,7 +463,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)shortage: LIBPATH_ (`create_short; 1);
+  /// q)shortage: libc_api_examples (`create_short; 1);
   /// q)shortage[]
   /// -144h
   /// ```
@@ -480,7 +480,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)trvial: LIBPATH_ (`create_int; 1);
+  /// q)trvial: libc_api_examples (`create_int; 1);
   /// q)trivial[]
   /// 86400000i
   /// ```
@@ -497,7 +497,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)lengthy: LIBPATH_ (`create_long; 1);
+  /// q)lengthy: libc_api_examples (`create_long; 1);
   /// q)lengthy[]
   /// -668541276001729000
   /// ```
@@ -514,7 +514,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)reality: LIBPATH_ (`create_real; 1);
+  /// q)reality: libc_api_examples (`create_real; 1);
   /// q)reality[]
   /// 0.00324e
   /// ```
@@ -531,7 +531,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)coffee_float: LIBPATH_ (`create_float; 1);
+  /// q)coffee_float: libc_api_examples (`create_float; 1);
   /// q)coffee_float[]
   /// -6302.62
   /// ```
@@ -548,7 +548,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)quiz: LIBPATH_ (`create_char; 1);
+  /// q)quiz: libc_api_examples (`create_char; 1);
   /// q)quiz[]
   /// "q"
   /// ```
@@ -565,7 +565,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)formal: LIBPATH_ (`create_symbol; 1);
+  /// q)formal: libc_api_examples (`create_symbol; 1);
   /// q)formal[]
   /// `symbolism
   /// q)`symbolism ~ formal[]
@@ -590,10 +590,10 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)hanko: LIBPATH_ (`create_timestamp; 1);
+  /// q)hanko: libc_api_examples (`create_timestamp; 1);
   /// q)hanko[]
   /// 2015.03.16D00:00:00.000000000
-  /// q)duration: LIBPATH_ (`create_timespan; 1);
+  /// q)duration: libc_api_examples (`create_timespan; 1);
   /// q)duration[]
   /// -1D01:30:00.001234567
   /// ```
@@ -611,7 +611,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)christmas_at_the_END: LIBPATH_ (`create_date; 1);
+  /// q)christmas_at_the_END: libc_api_examples (`create_date; 1);
   /// q)christmas_at_the_END[]
   /// 1999.12.25
   /// ```
@@ -628,7 +628,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)omega_date: LIBPATH_ (`create_datetime; 1);
+  /// q)omega_date: libc_api_examples (`create_datetime; 1);
   /// q)omega_date[]
   /// 2015.03.16T12:00:00.000
   /// ```
@@ -646,11 +646,11 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)ancient: LIBPATH_ (`create_time; 1);
+  /// q)ancient: libc_api_examples (`create_time; 1);
   /// q)ancient[]
   /// -01:30:00.123
   /// ```
-  pub fn kt(time: I) -> K;
+  pub fn kt(milliseconds: I) -> K;
 
   /// Constructor of q compound list.
   /// # Example
@@ -673,7 +673,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)text: LIBPATH_ (`create_string; 1);
+  /// q)text: libc_api_examples (`create_string; 1);
   /// q)text[]
   /// "this is a text."
   /// ```
@@ -690,7 +690,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)speak_inwardly: LIBPATH_ (`create_string2; 1);
+  /// q)speak_inwardly: libc_api_examples (`create_string2; 1);
   /// q)speak_inwardly[]
   /// "The meeting was too long"
   /// ```
@@ -722,7 +722,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)climate_change: LIBPATH_ (`create_table; 1);
+  /// q)climate_change: libc_api_examples (`create_table; 1);
   /// q)climate_change[]
   /// time                          temperature
   /// -----------------------------------------
@@ -748,7 +748,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)unkey: LIBPATH_ (`keyed_to_simple_table; 1);
+  /// q)unkey: libc_api_examples (`keyed_to_simple_table; 1);
   /// q)unkey[]
   /// time                          temperature
   /// -----------------------------------------
@@ -769,7 +769,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)locker: LIBPATH_ (`create_keyed_table; 1);
+  /// q)locker: libc_api_examples (`create_keyed_table; 1);
   /// q)locker[]
   /// time                         | temperature
   /// -----------------------------| -----------
@@ -1058,7 +1058,7 @@ extern "C"{
   /// }
   /// ```
   /// ```q
-  /// q)idle_man: LIBPATH_ (`idle_man; 1);
+  /// q)idle_man: libc_api_examples (`idle_man; 1);
   /// q)idle_man[]
   /// q)
   /// ```
@@ -1123,7 +1123,7 @@ extern "C"{
   /// Set whether interning symbols uses a lock: `lock` is either 0 or 1.
   ///  Returns the previously set value.
   /// # Example
-  /// ```
+  /// ```no_run
   /// use kdb_c_api::*;
   /// 
   /// #[no_mangle]
@@ -1258,7 +1258,7 @@ extern "C"{
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//                              Functions                               //
+//                              Utility                                 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 //%% Utility %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
@@ -1347,4 +1347,83 @@ pub extern "C" fn null_terminated_str_to_S(string: &str) -> S {
 /// ```
 pub extern "C" fn null_terminated_str_to_const_S(string: &str) -> const_S {
   string.as_bytes().as_ptr() as const_S
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                              Re-export                               //
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+//%% Constructor %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
+
+/// Create a month object. This is a complememtal constructor of
+///  missing month type.
+/// # Example
+/// ```no_run
+/// use kdb_c_api::*;
+/// 
+/// #[no_mangle]
+/// pub extern "C" fn create_month(_: K) -> K{
+///   // 2010.07m
+///   new_month(126)
+/// }
+/// ```
+/// ```q
+/// q)create_month: libc_api_examples (`create_month; 1);
+/// q)create_month[]
+/// 2010.07m
+/// ```
+pub extern "C" fn new_month(months: I) -> K{
+  unsafe{
+    let month=ka(-qtype::MONTH as I);
+    (*month).value.int=months;
+    month
+  }
+}
+
+/// Create a month object. This is a complememtal constructor of
+///  missing minute type.
+/// # Example
+/// ```no_run
+/// use kdb_c_api::*;
+/// 
+/// #[no_mangle]
+/// pub extern "C" fn create_minute(_: K) -> K{
+///   // 10:40
+///   new_minute(640)
+/// }
+/// ```
+/// ```q
+/// q)minty: libc_api_examples (`create_minute; 1);
+/// q)minty[]
+/// 10:40
+/// ```
+pub extern "C" fn new_minute(minutes: I) -> K{
+  unsafe{
+    let minute=ka(-qtype::MINUTE as I);
+    (*minute).value.int=minutes;
+    minute
+  }
+}
+
+/// Create a month object. This is a complememtal constructor of
+///  missing second type.
+/// # Example
+/// ```no_run
+/// #[no_mangle]
+/// pub extern "C" fn create_second(_: K) -> K{
+///   // -02:00:00
+///   new_second(-7200)
+/// }
+/// ```
+/// ```q
+/// q)third: libc_api_examples (`create_second; 1);
+/// q)third[]
+/// -02:00:00
+/// ```
+pub extern "C" fn new_second(seconds: I) -> K{
+  unsafe{
+    let second=ka(-qtype::SECOND as I);
+    (*second).value.int=seconds;
+    second
+  }
 }
