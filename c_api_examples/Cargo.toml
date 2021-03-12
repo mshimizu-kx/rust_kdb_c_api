@@ -14,4 +14,5 @@ This module provides examples of using `kdb_c_api` library. The functions define
 crate-type=["cdylib"]
 
 [dependencies]
+libc="^0.2"
 kdb_c_api={path="../kdb_c_api"}

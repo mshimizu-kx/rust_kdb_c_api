@@ -285,19 +285,220 @@ pub trait KUtility{
   fn as_mut_slice<'a, T>(self) -> &'a mut[T];
 
   /// Get an underlying q byte.
-  fn get_byte(&self) -> Result<G, String>;
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_byte(atom: K) -> K{
+  ///   match atom.get_byte(){
+  ///     Ok(byte) => {
+  ///       println!("byte: {:#4x}", byte);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_byte: LIBPATH_ (`print_byte; 1);
+  /// q)print_byte[0xc4]
+  /// byte: 0xc4
+  /// ```
+  fn get_byte(&self) -> Result<u8, &'static str>;
+
+  /// Get an underlying q short.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_short(atom: K) -> K{
+  ///   match atom.get_short(){
+  ///     Ok(short) => {
+  ///       println!("short: {}", short);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_short: LIBPATH_ (`print_short; 1);
+  /// q)print_short[10h]
+  /// short: 10
+  /// ```
+  fn get_short(&self) -> Result<i16, &'static str>;
 
   /// Get an underlying q int.
-  fn get_int(&self) -> Result<i32, String>;
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_int(atom: K) -> K{
+  ///   match atom.get_int(){
+  ///     Ok(int) => {
+  ///       println!("int: {}", int);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_int: LIBPATH_ (`print_int; 1);
+  /// q)print_int[03:57:20]
+  /// int: 14240
+  /// ```
+  fn get_int(&self) -> Result<i32, &'static str>;
+
+  /// Get an underlying q long.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_long(atom: K) -> K{
+  ///   match atom.get_long(){
+  ///     Ok(int) => {
+  ///       println!("long: {}", long);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_long: LIBPATH_ (`print_long; 1);
+  /// q)print_long[2000.01.01D12:00:00.123456789]
+  /// long: 43200123456789
+  /// ```
+  fn get_long(&self) -> Result<i64, &'static str>;
+
+  /// Get an underlying q real.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_real(atom: K) -> K{
+  ///   match atom.get_real(){
+  ///     Ok(real) => {
+  ///       println!("real: {}", real);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_real: LIBPATH_ (`print_real; 1);
+  /// q)print_real[193810.32e]
+  /// real: 193810.31
+  /// ```
+  fn get_real(&self) -> Result<f32, &'static str>;
+
+  /// Get an underlying q float.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_float(atom: K) -> K{
+  ///   match atom.get_float(){
+  ///     Ok(float) => {
+  ///       println!("float: {:.8}", float);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_float: LIBPATH_ (`print_float; 1);
+  /// q)print_float[2002.01.12T10:03:45.332]
+  /// float: 742.41927468
+  /// ```
+  fn get_float(&self) -> Result<f64, &'static str>;
+
+  /// Get an underlying q char.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_char(atom: K) -> K{
+  ///   match atom.get_char(){
+  ///     Ok(character) => {
+  ///       println!("char: \"{}\"", character);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_char: LIBPATH_ (`print_char; 1);
+  /// q)print_char["k"]
+  /// char: "k"
+  /// ```
+  fn get_char(&self) -> Result<char, &'static str>;
+
+  /// Get an underlying q symbol.
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_symbol2(atom: K) -> K{
+  ///   match atom.get_symbol(){
+  ///     Ok(symbol) => {
+  ///       println!("symbol: `{}", symbol);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_symbol2: LIBPATH_ (`print_symbol2; 1);
+  /// q)print_symbol2[`locust]
+  /// symbol: `locust
+  /// ```
+  fn get_symbol(&self) -> Result<&str, &'static str>;
 
   /// Get an underlying q string.
-  fn get_string(&self) -> Result<&str, String>;
+  /// # Example
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// 
+  /// #[no_mangle]
+  /// pub extern "C" fn print_string(string: K) -> K{
+  ///   match atom.get_string(){
+  ///     Ok(string_) => {
+  ///       println!("string: \"{}\"", string_);
+  ///       KNULL!()
+  ///     },
+  ///     Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)print_string: LIBPATH_ (`print_string; 1);
+  /// q)print_string["grasshopper"]
+  /// string: "grasshopper"
+  /// ```
+  fn get_string(&self) -> Result<&str, &'static str>;
 
   /// Get a length of the list. More specifically, a value of `k0.value.list.n` for list types.
   ///  Otherwise 2 for table and 1 for atom and null.
   /// # Example
   /// See the example of [`as_mut_slice`](trait.KUtility.html#tymethod.as_mut_slice).
   fn len(&self) -> i64;
+
+  /// Get a type of `K` object.
+  fn get_type(&self) -> i8;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -325,31 +526,87 @@ impl KUtility for K{
     }
   }
 
-  fn get_byte(&self) -> Result<G, String>{
+  fn get_byte(&self) -> Result<u8, &'static str>{
     unsafe{
       match -(**self).qtype{
         qtype::BYTE => Ok((**self).value.byte),
-        _ => Err("not a byte".to_string())
+        _ => Err("not a byte\0")
       }
     }
   }
 
-  fn get_int(&self) -> Result<i32, String>{
+  fn get_short(&self) -> Result<i16, &'static str>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::SHORT => Ok((**self).value.short),
+        _ => Err("not a short\0")
+      }
+    }
+  }
+
+  fn get_int(&self) -> Result<i32, &'static str>{
     unsafe{
       match -(**self).qtype{
         qtype::INT | qtype::MONTH | qtype::DATE | qtype::MINUTE | qtype::SECOND | qtype::TIME => Ok((**self).value.int),
-        _ => Err("not an int".to_string())
+        _ => Err("not an int\0")
       }
     }
   }
 
-  fn get_string(&self) -> Result<&str, String>{
+  fn get_long(&self) -> Result<i64, &'static str>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::LONG | qtype::TIMESTAMP | qtype::TIMESPAN => Ok((**self).value.long),
+        _ => Err("not a long\0")
+      }
+    }
+  }
+
+  fn get_real(&self) -> Result<f32, &'static str>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::REAL => Ok((**self).value.real),
+        _ => Err("not a real\0")
+      }
+    }
+  }
+
+  fn get_float(&self) -> Result<f64, &'static str>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::FLOAT | qtype::DATETIME => Ok((**self).value.float),
+        _ => Err("not a float\0")
+      }
+    }
+  }
+
+  fn get_char(&self) -> Result<char, &'static str>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::CHAR => Ok((**self).value.byte as char),
+        _ => Err("not a char\0")
+      }
+    }
+  }
+
+  fn get_symbol(&self) -> Result<&str, &'static str>{
+    unsafe{
+      match -(**self).qtype{
+        qtype::SYMBOL => {
+          Ok(S_to_str((**self).value.symbol))
+        },
+        _ => Err("not a symbol\0")
+      }
+    }
+  }
+
+  fn get_string(&self) -> Result<&str, &'static str>{
     unsafe{
       match (**self).qtype{
         qtype::CHAR => {
           Ok(str::from_utf8_unchecked_mut(self.as_mut_slice::<G>()))
         },
-        _ => Err("not a string".to_string())
+        _ => Err("not a string\0")
       }
     }
   }
@@ -370,6 +627,10 @@ impl KUtility for K{
         (**self).value.list.n
       }
     }
+  }
+
+  fn get_type(&self) -> i8{
+    unsafe{(**self).qtype}
   }
 }
 
@@ -397,8 +658,6 @@ extern "C"{
   //%% Constructors %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 
   /// Creates an atom of the specified type.
-  /// # Note
-  /// Not sure how to use this... 
   pub fn ka(qtype: I) -> K;
 
   /// Constructor of q bool object.
@@ -787,10 +1046,10 @@ extern "C"{
   /// #[no_mangle]
   /// pub extern "C" fn create_dictionary() -> K{
   ///   unsafe{
-  ///     let keys=ktn(qtype::INT as i32, 2);
+  ///     let keys=ktn(qtype::INT as I, 2);
   ///     keys.as_mut_slice::<I>()[0..2].copy_from_slice(&[0, 1]);
   ///     let values=knk(2);
-  ///     let date_list=ktn(qtype::DATE as i32, 3);
+  ///     let date_list=ktn(qtype::DATE as I, 3);
   ///     // 2000.01.01 2000.01.02 2000.01.03
   ///     date_list.as_mut_slice::<I>()[0..3].copy_from_slice(&[0, 1, 2]);
   ///     let string=kp(str_to_S!("I'm afraid I would crash the application..."));
@@ -903,7 +1162,7 @@ extern "C"{
   /// #[no_mangle]
   /// pub extern "C" fn create_symbol_list(_: K) -> K{
   ///   unsafe{
-  ///     let mut list=ktn(qtype::SYMBOL as i32, 0);
+  ///     let mut list=ktn(qtype::SYMBOL as I, 0);
   ///     js(&mut list, ss(str_to_S!("Abraham")));
   ///     js(&mut list, ss(str_to_S!("Isaac")));
   ///     js(&mut list, ss(str_to_S!("Jacob")));
@@ -920,7 +1179,7 @@ extern "C"{
   /// 1b
   /// ```
   /// # Note
-  /// In this example we intentionally not allocated an array by `ktn(qtype::SYMBOL as i32, 0)` to use `js`
+  /// In this example we intentionally not allocated an array by `ktn(qtype::SYMBOL as I, 0)` to use `js`
   ///  to make it grow. When using `js`, it accesses current value of `n` in `K`, so preallocating memory
   ///  with `ktn` and then using `js` will crash because `ktn` initializes `n` with its argument. If you want
   ///  to allocate a memory in advance, use `ktn` and then substitute a value after converting the `K` into a
@@ -982,11 +1241,11 @@ extern "C"{
   ///     let dicts=knk(3);
   ///     let dicts_slice=dicts.as_mut_slice::<K>();
   ///     for i in 0..3{
-  ///       let keys=ktn(qtype::SYMBOL as i32, 2);
+  ///       let keys=ktn(qtype::SYMBOL as I, 2);
   ///       let keys_slice=keys.as_mut_slice::<S>();
   ///       keys_slice[0]=ss(str_to_S!("a"));
   ///       keys_slice[1]=ss(str_to_S!("b"));
-  ///       let values=ktn(qtype::INT as i32, 4);
+  ///       let values=ktn(qtype::INT as I, 4);
   ///       values.as_mut_slice::<I>()[0..2].copy_from_slice(&[i*10, i*100]);
   ///       dicts_slice[i as usize]=xD(keys, values);
   ///     }
@@ -1023,17 +1282,83 @@ extern "C"{
   /// - Probably not used.
   pub fn d9(bytes: K) -> K;
 
-  //%% Callback %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
-
   /// Remove callback from the associated kdb+ handle and call `kclose`.
   ///  Return null if the handle is invalid or not the one which had been registered by `sd1`.
+  /// # Note
+  /// A function which calls this function must be executed at the exit of the process.
   pub fn sd0(handle: I) -> V;
 
   /// Remove callback from the associated kdb+ handle and call `kclose` if the given condition is satisfied.
   ///  Return null if the handle is invalid or not the one which had been registered by `sd1`.
+  /// # Note
+  /// A function which calls this function must be executed at the exit of the process.
   pub fn sd0x(handle: I, condition: I) -> V;
 
   /// Register callback to the associated kdb+ handle.
+  /// ```no_run
+  /// use kdb_c_api::*;
+  /// use std::ffi::c_void;
+  /// use libc::send;
+  /// 
+  /// // Send asynchronous query to the q process which sent a query to the caller of this function.
+  /// extern "C" fn counter(socket: I) -> K{
+  ///   let extra_query="show `$\"Counter_punch!!\"".as_bytes();
+  ///   let query_length=extra_query.len();
+  ///   // header (8) + list header (6) + data length
+  ///   let total_length=8+6+query_length;
+  ///   // Buffer
+  ///   let mut message: Vec<u8>=Vec::with_capacity(total_length);
+  ///   // Little endian, async, uncompress, reserved
+  ///   message.extend_from_slice(&[1_u8, 0, 0, 0]);
+  ///   // Total message length
+  ///   message.extend_from_slice(&(total_length as i32).to_le_bytes());
+  ///   // Data type, attribute
+  ///   message.extend_from_slice(&[10_u8, 0]);
+  ///   // Length of data
+  ///   message.extend_from_slice(&(query_length as i32).to_le_bytes());
+  ///   // Data
+  ///   message.extend_from_slice(extra_query);
+  ///   // Send
+  ///   unsafe{send(socket, message.as_slice().as_ptr() as *const c_void, total_length, 0)};
+  ///   KNULL!()
+  /// }
+  ///
+  /// #[no_mangle]
+  /// pub extern "C" fn enable_counter(socket: K) -> K{
+  ///   unsafe{
+  ///     let result=sd1(socket.get_int().expect("oh no"), counter);
+  ///     if result.get_type()== qtype::NULL || result.get_type()== qtype::ERROR{
+  ///       return krr(null_terminated_str_to_const_S("Failed to hook\0"));
+  ///     }
+  ///     else{
+  ///       KNULL!()
+  ///     }
+  ///   }
+  /// }
+  /// ```
+  /// ```q
+  /// q)// process1
+  /// q)enable_counter: `libc_api_examples 2: (`enable_counter; 1)
+  /// q)\p 5000
+  /// ```
+  /// ```q
+  /// q)// process2
+  /// q)h:hopen `:unix://5000
+  /// ```
+  /// ```q
+  /// q)// process1
+  /// q).z.W
+  /// 5|
+  /// q)enable_counter[5i]
+  /// ```
+  /// ```q
+  /// q)// process2
+  /// q)h "1+2"
+  /// `Counter_punch!!
+  /// 3
+  /// q)neg[h] "1+2"
+  /// `Counter_punch!!
+  /// ```
   pub fn sd1(handle: I, function: extern fn(I) -> K) -> K;
 
   //%% Reference Count %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
@@ -1309,7 +1634,7 @@ pub fn S_to_str<'a>(cstring: S) -> &'a str{
 /// q)bigbang[]
 /// `super_illusion
 /// ```
-pub extern "C" fn null_terminated_str_to_S(string: &str) -> S {
+pub fn null_terminated_str_to_S(string: &str) -> S {
   unsafe{
     CStr::from_bytes_with_nul_unchecked(string.as_bytes()).as_ptr() as S
   }
@@ -1345,7 +1670,7 @@ pub extern "C" fn null_terminated_str_to_S(string: &str) -> S {
 /// q)a:42i
 /// q)check a
 /// ```
-pub extern "C" fn null_terminated_str_to_const_S(string: &str) -> const_S {
+pub fn null_terminated_str_to_const_S(string: &str) -> const_S {
   string.as_bytes().as_ptr() as const_S
 }
 

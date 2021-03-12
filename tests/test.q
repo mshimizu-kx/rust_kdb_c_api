@@ -97,8 +97,26 @@ LIBPATH_: `libc_api_examples 2:
 .capi.parallel_sym_change: LIBPATH_ (`parallel_sym_change; 1);
 // r1
 .capi.pass_through_cave: LIBPATH_ (`pass_through_cave; 1);
+// get_byte
+.capi.print_byte: LIBPATH_ (`print_byte; 1);
+// get_char
+.capi.print_char: LIBPATH_ (`print_char; 1);
+// get_float
+.capi.print_float: LIBPATH_ (`print_float; 1);
+// get_int
+.capi.print_int: LIBPATH_ (`print_int; 1);
+// get_long
+.capi.print_long: LIBPATH_ (`print_long; 1);
+// get_real
+.capi.print_real: LIBPATH_ (`print_real; 1);
+// get_short
+.capi.print_short: LIBPATH_ (`print_short; 1);
+// get_string
+.capi.print_string: LIBPATH_ (`print_string; 1);
 // S_to_str
 .capi.print_symbol: LIBPATH_ (`print_symbol; 1);
+// get_symbol
+.capi.print_symbol2: LIBPATH_ (`print_symbol2; 1);
 // dot
 .capi.rust_parse: LIBPATH_ (`rust_parse; 2);
 // krr
@@ -127,6 +145,71 @@ LIBPATH_: `libc_api_examples 2:
 .test.ASSERT_EQ["as_mut_slice - success"; .capi.modify_long_list_a_bit[list:1 2 3]; 1 30000 3]
 // as_mut_slice (return error)
 .test.ASSERT_ERROR["as_mut_slice - failure"; .capi.modify_long_list_a_bit; enlist enlist 1; "this list is not long enough"]
+
+// get_byte
+.test.ASSERT_EQ["get_byte"; .capi.print_byte[0xc4]; (::)]
+// get_byte - failure
+.test.ASSERT_ERROR["get_byte - failure"; .capi.print_byte; enlist "c"; "not a byte"]
+
+// get_short
+.test.ASSERT_EQ["get_short"; .capi.print_short[10h]; (::)]
+// get_short - failure
+.test.ASSERT_ERROR["get_short - failure"; .capi.print_short; enlist 10; "not a short"]
+
+// get_int
+.test.ASSERT_EQ["get_int"; .capi.print_int[42i]; (::)]
+// get_int - month
+.test.ASSERT_EQ["get_int - month"; .capi.print_int[2010.03m]; (::)]
+// get_int - date
+.test.ASSERT_EQ["get_int - date"; .capi.print_int[2020.02.01]; (::)]
+// get_int - minute
+.test.ASSERT_EQ["get_int - minute"; .capi.print_int[12:03]; (::)]
+// get_int - second
+.test.ASSERT_EQ["get_int - second"; .capi.print_int[03:57:20]; (::)]
+// get_int - time
+.test.ASSERT_EQ["get_int - time"; .capi.print_int[00:34:16.636]; (::)]
+// get_int - error
+.test.ASSERT_ERROR["get_int - failure1"; .capi.print_int; enlist `error; "not an int"]
+// get_int - error
+.test.ASSERT_ERROR["get_int - failure2"; .capi.print_int; enlist 10000; "not an int"]
+
+// get_long
+.test.ASSERT_EQ["get_long"; .capi.print_long[-109210]; (::)]
+// get_long - timestamp
+.test.ASSERT_EQ["get_long - timestamp"; .capi.print_long[2000.01.01D12:00:00.123456789]; (::)]
+// get_long - timespan
+.test.ASSERT_EQ["get_long - timespan"; .capi.print_long[-3D18:23:09.000000021]; (::)]
+// get_long - error
+.test.ASSERT_ERROR["get_long - failure"; .capi.print_long; enlist 1b; "not a long"]
+
+// get_real
+.test.ASSERT_EQ["get_real"; .capi.print_real[193810.32e]; (::)]
+// get_real - error
+.test.ASSERT_ERROR["get_real - failure"; .capi.print_real; enlist 100f; "not a real"]
+
+// get_float
+.test.ASSERT_EQ["get_float"; .capi.print_float[-37017.0933]; (::)]
+// get_float - datetime
+.test.ASSERT_EQ["get_float - datetime"; .capi.print_float[2002.01.12T10:03:45.332]; (::)]
+// get_float - error
+.test.ASSERT_ERROR["get_float - failure"; .capi.print_float; enlist .z.p; "not a float"]
+
+// get_char
+.test.ASSERT_EQ["get_char"; .capi.print_char["k"]; (::)]
+// get_char - error
+.test.ASSERT_ERROR["get_char - failure1"; .capi.print_char; enlist "devour"; "not a char"]
+// get_char - error
+.test.ASSERT_ERROR["get_char - failure2"; .capi.print_char; enlist 1b; "not a char"]
+
+// get_symbol
+.test.ASSERT_EQ["get_symbol"; .capi.print_symbol2[`locust]; (::)]
+// get_symool - error
+.test.ASSERT_ERROR["get_symbol - failure"; .capi.print_symbol2; enlist "attack!"; "not a symbol"]
+
+// get_string
+.test.ASSERT_EQ["get_string"; .capi.print_string["grasshopper"]; (::)]
+// get_string - error
+.test.ASSERT_ERROR["get_string - failure"; .capi.print_string; enlist (1 2; `a`b); "not a string"]
 
 //%% Constructors %%//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv/
 

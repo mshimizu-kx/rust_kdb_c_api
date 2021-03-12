@@ -8,6 +8,8 @@
 extern crate kdb_c_api;
 
 use kdb_c_api::*;
+use std::ffi::c_void;
+use libc::send;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                              Macros                                  //
@@ -58,6 +60,106 @@ pub extern "C" fn modify_long_list_a_bit(long_list: K) -> K{
     else{
       krr(null_terminated_str_to_const_S("this list is not long enough. how ironic...\0"))
     } 
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_byte(atom: K) -> K{
+  match atom.get_byte(){
+    Ok(byte) => {
+      println!("byte: {:#4x}", byte);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_short(atom: K) -> K{
+  match atom.get_short(){
+    Ok(short) => {
+      println!("short: {}", short);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_int(atom: K) -> K{
+  match atom.get_int(){
+    Ok(int) => {
+      println!("int: {}", int);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_long(atom: K) -> K{
+  match atom.get_long(){
+    Ok(long) => {
+      println!("long: {}", long);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+  
+}
+
+#[no_mangle]
+pub extern "C" fn print_real(atom: K) -> K{
+  match atom.get_real(){
+    Ok(real) => {
+      println!("real: {}", real);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_float(atom: K) -> K{
+  match atom.get_float(){
+    Ok(float) => {
+      println!("float: {:.8}", float);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_char(atom: K) -> K{
+  match atom.get_char(){
+    Ok(character) => {
+      println!("char: \"{}\"", character);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_symbol2(atom: K) -> K{
+  match atom.get_symbol(){
+    Ok(symbol) => {
+      println!("symbol: `{}", symbol);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn print_string(string: K) -> K{
+  match string.get_string(){
+    Ok(string_) => {
+      println!("string: \"{}\"", string_);
+      KNULL!()
+    },
+    Err(error) => unsafe{krr(null_terminated_str_to_const_S(error))}
   }
 }
 
@@ -302,6 +404,44 @@ pub extern "C" fn dictionary_list_to_table() -> K{
     // ([] a: 0 10 20i; b: 0 100 200i)
     k(0, str_to_S!("{[dicts] -1 _ dicts, (::)}"), dicts, KNULL!())
   } 
+}
+
+/// Callback function to send asynchronous query to a q process which sent a query to the
+///  caller of this function.
+extern "C" fn counter(socket: I) -> K{
+  let extra_query="show `$\"Counter_punch!!\"".as_bytes();
+  let query_length=extra_query.len();
+  // header (8) + list header (6) + data length
+  let total_length=8+6+query_length;
+  // Buffer
+  let mut message: Vec<u8>=Vec::with_capacity(total_length);
+  // Little endian, async, uncompress, reserved
+  message.extend_from_slice(&[1_u8, 0, 0, 0]);
+  // Total message length
+  message.extend_from_slice(&(total_length as i32).to_le_bytes());
+  // Data type, attribute
+  message.extend_from_slice(&[10_u8, 0]);
+  // Length of data
+  message.extend_from_slice(&(query_length as i32).to_le_bytes());
+  // Data
+  message.extend_from_slice(extra_query);
+  // Send
+  unsafe{send(socket, message.as_slice().as_ptr() as *const c_void, total_length, 0)};
+  KNULL!()
+}
+
+/// Example of `sd1`.
+#[no_mangle]
+pub extern "C" fn enable_counter(socket: K) -> K{
+  unsafe{
+    let result=sd1(socket.get_int().expect("oh no"), counter);
+    if result.get_type()== qtype::NULL || result.get_type()== qtype::ERROR{
+      return krr(null_terminated_str_to_const_S("Failed to hook\0"));
+    }
+    else{
+      KNULL!()
+    }
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
