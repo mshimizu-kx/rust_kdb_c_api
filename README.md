@@ -108,7 +108,7 @@ tests]$ q test.q
 Initialized something, probably it is your mindset.
 error: type
 symbol: `rust
-test result: ok. 12 passed; 0 failed
+test result: ok. 74 passed; 0 failed
 q)
 
 ```
